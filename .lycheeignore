@@ -1,0 +1,12 @@
+# Patterns (regex) excluded from lychee link checking in CI
+# Loopback / local preview server URLs
+^https?://localhost
+^https?://127\.0\.0\.1
+^https?://\[::1\]
+^https?://0\.0\.0\.0
+# Vercel preview/deploy URLs (may not exist yet when CI runs)
+^https?://([a-z0-9-]+\.)*vercel\.app
+# Sites that block automated checkers / profile URLs
+^https?://(www\.)?linkedin\.com/
+^https://github\.com/suvamAdhikary/?$
+^mailto:

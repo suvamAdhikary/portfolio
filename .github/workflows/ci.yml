@@ -59,7 +59,8 @@ jobs:
       - name: Link check with lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose --no-progress './dist/**/*.html' --exclude-link-local --exclude 'mailto:*' --exclude 'https://linkedin.com/*' --exclude 'https://github.com/suvamAdhikary' --max-retries 3
+          # Exclusion patterns live in .lycheeignore (loopback, localhost, *.vercel.app previews, LinkedIn)
+          args: --verbose --no-progress --exclude-loopback --exclude-link-local --exclude-private --max-retries 3 './dist/**/*.html'
           fail: true
 
   lighthouse:
