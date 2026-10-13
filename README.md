@@ -2,6 +2,8 @@
 
 Modern, performant portfolio website built with Astro 5, TypeScript, and Tailwind CSS.
 
+> **📋 Project Planning:** See [ROADMAP.md](./ROADMAP.md) for project timeline, decisions, and upcoming work. **Update ROADMAP.md whenever significant work changes occur.**
+
 ## 🚀 Tech Stack
 
 - **Framework:** Astro 5 (static site generation)
