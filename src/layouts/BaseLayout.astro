@@ -8,7 +8,7 @@ interface Props {
 
 const { title, description, ogImage = '/og-image.png', canonicalURL } = Astro.props;
 
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvam-adhikary.vercel.app';
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvamadhikary.vercel.app';
 const pageUrl = canonicalURL || new URL(Astro.url.pathname, siteUrl).toString();
 const fullOgImage = new URL(ogImage, siteUrl).toString();
 
