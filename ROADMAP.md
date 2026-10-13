@@ -45,6 +45,11 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - 3 real case studies created from STAR stories: MongoDB Performance Optimization (90% round-trip reduction, 5x throughput), Kafka Event Architecture (100K+ events/day, 21+ services), GraphQL Federation Gateway (20+ microservices, 60% incident reduction)
   - Removed 4 placeholder case studies that couldn't be supported by real work
   - All facts verified against resume and STAR story documents; no invented metrics or claims
+- [x] Resume PDF added to public/ with phone number redacted (2026-10-13)
+  - Removed +91-8101846457 and surrounding separator from header
+  - Used PyMuPDF for true text redaction (not just visual covering)
+  - Verified with text extraction: phone number completely removed
+  - Web-safe resume available at /resume.pdf
 
 **SEO & Quality (2026-10-13)**
 - [x] Open Graph and Twitter Card meta tags
@@ -79,9 +84,6 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 ---
 
 ### 📋 Next (Target: 2026-10-20)
-
-**Remaining Content Items**
-- [ ] Add resume PDF to public/ directory
 
 **First Deployment**
 - [ ] Review and finalize all content before deployment
