@@ -60,7 +60,7 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           # Exclusion patterns live in .lycheeignore (loopback, localhost, *.vercel.app previews, LinkedIn)
-          args: --verbose --no-progress --exclude-loopback --exclude-link-local --exclude-private --max-retries 3 './dist/**/*.html'
+          args: --verbose --no-progress --exclude-loopback --exclude-link-local --exclude-private --max-retries 3 --root-dir "${{ github.workspace }}/dist" './dist/**/*.html'
           fail: true
 
   lighthouse:
