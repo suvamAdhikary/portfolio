@@ -1,0 +1,332 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getCollection } from 'astro:content';
+import profile from '../../data/profile.json';
+
+import '../styles/global.css';
+
+const caseStudies = (await getCollection('case-studies'))
+  .filter((cs) => !cs.data.draft)
+  .sort((a, b) => (a.data.order || 999) - (b.data.order || 999))
+  .slice(0, 3);
+
+// GitHub API integration for projects
+let githubProjects: any[] = [];
+try {
+  const token = import.meta.env.GITHUB_TOKEN;
+  const headers: HeadersInit = {
+    'Accept': 'application/vnd.github.v3+json',
+  };
+  if (token) {
+    headers['Authorization'] = `token ${token}`;
+  }
+  
+  const response = await fetch('https://api.github.com/users/suvamAdhikary/repos?sort=updated&per_page=100', {
+    headers
+  });
+  
+  if (response.ok) {
+    const repos = await response.json();
+    githubProjects = repos
+      .filter((repo: any) => !repo.fork && !repo.archived)
+      .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+  }
+} catch (error) {
+  console.warn('Failed to fetch GitHub projects:', error);
+}
+
+// Separate bootcamp projects
+const bootcampNames = ['react', 'clone', 'imdb', 'netflix', 'amazon', 'masai', 'practice', 'assignment'];
+const bootcampProjects = githubProjects.filter((repo: any) => 
+  bootcampNames.some(name => repo.name.toLowerCase().includes(name))
+);
+const featuredProjects = githubProjects
+  .filter((repo: any) => !bootcampNames.some(name => repo.name.toLowerCase().includes(name)))
+  .slice(0, 6);
+---
+
+<BaseLayout 
+  title={`${profile.name} | ${profile.title}`}
+  description={profile.tagline}
+>
+  <Header />
+  
+  <main>
+    <!-- Hero Section -->
+    <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+      <div class="max-w-4xl">
+        <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight">
+          {profile.name}
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-4">
+          {profile.title}, {profile.location.split(',')[0]}
+        </p>
+        <p class="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-6 max-w-2xl">
+          {profile.tagline}
+        </p>
+        
+        {profile.openToRoles && (
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-sm font-medium mb-8">
+            <span class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+            Open to roles
+          </div>
+        )}
+        
+        <div class="flex flex-wrap gap-4 mt-8">
+          <a 
+            href={profile.links.resume}
+            class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          >
+            Download Resume
+          </a>
+          <a 
+            href={profile.links.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-6 py-3 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          >
+            GitHub
+          </a>
+          <a 
+            href={profile.links.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-6 py-3 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          >
+            LinkedIn
+          </a>
+          <a 
+            href={`mailto:${profile.email}`}
+            class="px-6 py-3 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          >
+            Email
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <h2 class="text-3xl md:text-4xl font-bold mb-8">About</h2>
+      <div class="max-w-3xl space-y-4 text-gray-700 dark:text-gray-300">
+        <p>
+          I'm a Backend Engineer with {new Date().getFullYear() - 2022}+ years of experience building scalable distributed systems. 
+          Currently at Neutrinos in Bengaluru, I specialize in Node.js, TypeScript, and modern backend architectures.
+        </p>
+        <p>
+          My expertise includes designing event-driven systems with Apache Kafka, implementing GraphQL Federation for microservices, 
+          and orchestrating containerized applications with Kubernetes. I'm passionate about building resilient, performant APIs 
+          and optimizing system architectures for scale.
+        </p>
+        <p>
+          I transitioned into software engineering from a mechanical engineering background, completing a Full-Stack Web Development 
+          certification from Masai School in 2021. This journey has given me a unique perspective on problem-solving and technical design.
+        </p>
+      </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-gray-50 dark:bg-gray-900/50 -mx-4">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold mb-12">Experience</h2>
+        
+        <div class="space-y-12">
+          {profile.experience.map((exp) => (
+            <div class="relative pl-8 border-l-2 border-primary-500">
+              <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary-600 border-4 border-white dark:border-gray-950"></div>
+              
+              <div class="mb-1">
+                <h3 class="text-xl font-bold">{exp.position}</h3>
+                <p class="text-lg text-gray-700 dark:text-gray-300">{exp.company}</p>
+              </div>
+              
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {new Date(exp.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - 
+                {exp.current ? 'Present' : new Date(exp.endDate!).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                {' • '}{exp.location}
+              </p>
+              
+              <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                {exp.highlights.map((highlight) => (
+                  <li class="flex gap-2">
+                    <span class="text-primary-600 dark:text-primary-400 mt-1.5">▸</span>
+                    <span>{highlight}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Case Studies Section -->
+    <section id="case-studies" class="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Case Studies</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-12 max-w-2xl">
+        Deep dives into technical projects showcasing architecture, implementation, and results.
+      </p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {caseStudies.map((study) => (
+          <a 
+            href={`/case-studies/${study.id}`}
+            class="group block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 transition-all hover:shadow-lg"
+          >
+            <h3 class="text-xl font-bold mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+              {study.data.title}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+              {study.data.description}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              {study.data.tags.slice(0, 3).map((tag: string) => (
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-xs rounded">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-gray-50 dark:bg-gray-900/50 -mx-4">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Projects</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-12">
+          Selected projects from my GitHub
+        </p>
+        
+        {featuredProjects.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {featuredProjects.map((project: any) => (
+              <a 
+                href={project.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 transition-all hover:shadow-lg"
+              >
+                <h3 class="text-lg font-bold mb-2">
+                  {project.name}
+                </h3>
+                {project.description && (
+                  <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    {project.description}
+                  </p>
+                )}
+                <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+                  {project.language && (
+                    <span class="flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-primary-500"></span>
+                      {project.language}
+                    </span>
+                  )}
+                  {project.stargazers_count > 0 && (
+                    <span>⭐ {project.stargazers_count}</span>
+                  )}
+                  {project.forks_count > 0 && (
+                    <span>🔱 {project.forks_count}</span>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div class="text-gray-600 dark:text-gray-400 mb-12">
+            <p>Unable to load projects. Check GitHub API access.</p>
+          </div>
+        )}
+
+        {bootcampProjects.length > 0 && (
+          <>
+            <h3 class="text-2xl font-bold mb-6">Earlier Work</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-6">
+              Practice projects and clones from my learning journey at Masai School
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {bootcampProjects.slice(0, 8).map((project: any) => (
+                <a 
+                  href={project.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 transition-all text-sm"
+                >
+                  <h4 class="font-semibold truncate">
+                    {project.name}
+                  </h4>
+                  {project.language && (
+                    <span class="text-xs text-gray-500 dark:text-gray-500">
+                      {project.language}
+                    </span>
+                  )}
+                </a>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <h2 class="text-3xl md:text-4xl font-bold mb-12">Skills & Technologies</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {Object.entries(profile.skills).map(([category, skillList]) => (
+          <div>
+            <h3 class="text-xl font-bold mb-4 text-primary-600 dark:text-primary-400">
+              {category}
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              {(skillList as string[]).map((skill) => (
+                <span class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-md text-sm">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-gray-50 dark:bg-gray-900/50 -mx-4">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold mb-12">Education</h2>
+        
+        <div class="space-y-8">
+          {profile.education.map((edu) => (
+            <div class="border-l-2 border-primary-500 pl-6">
+              <h3 class="text-xl font-bold">{edu.degree}</h3>
+              <p class="text-lg text-gray-700 dark:text-gray-300">{edu.institution}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {edu.type === 'certification' ? edu.year : `${edu.startYear} - ${edu.endYear}`}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Get In Touch</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl">
+        I'm always interested in hearing about new opportunities, interesting projects, or just having a chat about technology.
+      </p>
+      
+      <a 
+        href={`mailto:${profile.email}`}
+        class="inline-block px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      >
+        Send me an email
+      </a>
+    </section>
+  </main>
+  
+  <Footer />
+</BaseLayout>

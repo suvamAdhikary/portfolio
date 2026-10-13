@@ -1,0 +1,51 @@
+{
+  "name": "Suvam Adhikary",
+  "title": "Backend Engineer",
+  "location": "Bengaluru, India",
+  "tagline": "Building scalable distributed systems with Node.js, TypeScript, and event-driven architectures",
+  "openToRoles": true,
+  "email": "suvam.adhikary@example.com",
+  "links": {
+    "github": "https://github.com/suvamAdhikary",
+    "linkedin": "https://www.linkedin.com/in/suvam-adhikary",
+    "resume": "/resume.pdf"
+  },
+  "experience": [
+    {
+      "company": "Neutrinos",
+      "position": "Backend Engineer",
+      "startDate": "2022-01",
+      "endDate": null,
+      "current": true,
+      "location": "Bengaluru, India",
+      "highlights": [
+        "TODO: Add key achievements with metrics (e.g., improved API response times, reduced infrastructure costs, increased throughput)",
+        "TODO: Highlight major projects involving Kafka, GraphQL Federation, Kubernetes deployments",
+        "TODO: Mention team collaboration, technical leadership, or mentoring activities"
+      ]
+    }
+  ],
+  "skills": {
+    "Backend & Languages": ["Node.js", "TypeScript", "JavaScript"],
+    "Frameworks & Tools": ["NestJS", "Express.js", "GraphQL Federation"],
+    "Data & Messaging": ["MongoDB", "PostgreSQL", "MySQL", "Apache Kafka", "Redis"],
+    "DevOps & Cloud": ["Kubernetes", "Docker", "AWS", "CI/CD", "Terraform"],
+    "Architecture": ["Microservices", "Event-Driven Architecture", "REST APIs", "GraphQL"]
+  },
+  "education": [
+    {
+      "institution": "Masai School",
+      "degree": "Full-Stack Web Development",
+      "type": "certification",
+      "year": "2021"
+    },
+    {
+      "institution": "Heritage Institute of Technology, Kolkata",
+      "degree": "B.Tech in Mechanical Engineering",
+      "type": "degree",
+      "startYear": "2014",
+      "endYear": "2018"
+    }
+  ],
+  "localClonePath": "D:\\mh\\projects\\portfolio"
+}

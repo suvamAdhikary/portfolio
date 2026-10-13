@@ -1,0 +1,113 @@
+---
+import { getCollection, type CollectionEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+export async function getStaticPaths() {
+  const caseStudies = await getCollection('case-studies');
+  return caseStudies
+    .filter((cs) => !cs.data.draft)
+    .map((study) => ({
+      params: { slug: study.id },
+      props: { study },
+    }));
+}
+
+interface Props {
+  study: CollectionEntry<'case-studies'>;
+}
+
+const { study } = Astro.props;
+const { Content } = await render(study);
+
+const formattedDate = study.data.publishDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout 
+  title={`${study.data.title} | Suvam Adhikary`}
+  description={study.data.description}
+>
+  <Header />
+  
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <article class="max-w-4xl mx-auto">
+      <header class="mb-12">
+        <a 
+          href="/#case-studies" 
+          class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:underline mb-6"
+        >
+          ← Back to all case studies
+        </a>
+        
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+          {study.data.title}
+        </h1>
+        
+        <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+          {study.data.description}
+        </p>
+        
+        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+          <time datetime={study.data.publishDate.toISOString()}>
+            {formattedDate}
+          </time>
+          <span>•</span>
+          <div class="flex flex-wrap gap-2">
+            {study.data.tags.map((tag) => (
+              <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </header>
+      
+      <div class="prose prose-lg dark:prose-invert max-w-none
+        prose-headings:font-bold prose-headings:tracking-tight
+        prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
+        prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
+        prose-h4:text-xl prose-h4:mt-6 prose-h4:mb-3
+        prose-p:text-gray-700 dark:prose-p:text-gray-300
+        prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline
+        prose-strong:text-gray-900 dark:prose-strong:text-gray-100
+        prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
+        prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800
+        prose-ul:text-gray-700 dark:prose-ul:text-gray-300
+        prose-ol:text-gray-700 dark:prose-ol:text-gray-300
+        prose-li:marker:text-primary-600 dark:prose-li:marker:text-primary-400
+        prose-blockquote:border-primary-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
+        prose-hr:border-gray-200 dark:prose-hr:border-gray-800
+        prose-img:rounded-lg prose-img:shadow-lg
+      ">
+        <Content />
+      </div>
+      
+      <div class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+        <a 
+          href="/#case-studies" 
+          class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:underline"
+        >
+          ← Back to all case studies
+        </a>
+      </div>
+    </article>
+  </main>
+  
+  <Footer />
+</BaseLayout>
+
+<style is:global>
+  /* Mermaid diagram dark mode support */
+  :root.dark .mermaid {
+    background-color: transparent;
+  }
+  
+  :root.dark .mermaid svg {
+    filter: invert(0.9) hue-rotate(180deg);
+  }
+</style>
