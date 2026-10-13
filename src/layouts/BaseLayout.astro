@@ -23,46 +23,48 @@ import profile from '../../data/profile.json';
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
-    
+
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={pageUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={fullOgImage} />
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content={pageUrl} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={fullOgImage} />
-    
+
     <!-- JSON-LD Person Schema -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": profile.name,
-      "jobTitle": profile.title,
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": profile.location
-      },
-      "url": siteUrl,
-      "sameAs": [
-        profile.links.github,
-        profile.links.linkedin
-      ]
-    })} />
-    
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: profile.name,
+        jobTitle: profile.title,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: profile.location,
+        },
+        url: siteUrl,
+        sameAs: [profile.links.github, profile.links.linkedin],
+      })}
+    />
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    
+
     <!-- Inter Variable Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+
     <script is:inline>
       // Dark mode initialization
       const theme = (() => {
@@ -74,7 +76,7 @@ import profile from '../../data/profile.json';
         }
         return 'light';
       })();
-      
+
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {

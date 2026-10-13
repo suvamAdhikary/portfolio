@@ -7,11 +7,13 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 ### ✅ Done (2026-10-13)
 
 **Decision: Full rebuild with Astro instead of patching old React SPA**
+
 - **Why Astro?** Static site generation for optimal SEO, perfect Lighthouse scores, zero client JS needed for content site, better performance than React SPA
 - **Why new repo?** Clean slate for modern stack; old `portfolio_react` repository (https://github.com/suvamAdhikary/portfolio_react) will be archived after migration
 - **Content strategy:** All content in git (data/profile.json + MDX) for version control and easy editing
 
 **Core Infrastructure (2026-10-13)**
+
 - [x] Scaffold Astro 5 project with strict TypeScript
 - [x] Configure Tailwind CSS v4 with custom theme
 - [x] Set up content collections with Zod schemas
@@ -19,6 +21,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Configure self-hosted variable fonts (Inter)
 
 **Pages & Components (2026-10-13)**
+
 - [x] Homepage with all sections (hero, about, experience, case studies, projects, skills, education, contact)
 - [x] Dynamic case study pages with MDX rendering
 - [x] GitHub API integration for projects (with fallback)
@@ -26,6 +29,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Header navigation and footer
 
 **Content Templates (2026-10-13)**
+
 - [x] Profile data structure (data/profile.json)
 - [x] 4 case study templates with TODO placeholders:
   - Kafka Event Pipeline
@@ -56,6 +60,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Removed temporary Origin-hosted repository references
 
 **SEO & Quality (2026-10-13)**
+
 - [x] Open Graph and Twitter Card meta tags
 - [x] JSON-LD Person schema
 - [x] Sitemap generation
@@ -64,17 +69,20 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Favicon and OG image
 
 **CI/CD & DevOps (2026-10-13)**
+
 - [x] GitHub Actions PR checks (type check, lint, build, Lychee link check, Lighthouse CI)
 - [x] Weekly deploy workflow (optional Vercel hook)
 - [x] ESLint and Prettier configuration
 - [x] .nvmrc, .gitattributes, .editorconfig
 
 **Documentation (2026-10-13)**
+
 - [x] Comprehensive README with setup, editing guide, deployment instructions
 - [x] Local clone path documented (D:\mh\projects\portfolio)
 - [x] Content editing guide for non-technical updates
 
 **Not Done Yet:**
+
 - [ ] No actual deployment to Vercel (keeping old site live until ready)
 - [ ] No custom domain configured
 - [ ] No redirect from old portfolio_react site
@@ -84,6 +92,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 ### 🚧 In Progress (2026-10-14)
 
 **Modern Futuristic UI/UX Redesign**
+
 - [x] Animated hero section with lightweight canvas particle system (node-graph visualization)
 - [x] Glassmorphism card effects throughout
 - [x] Bento grid for key metrics and highlights
@@ -105,6 +114,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 ### 📋 Next (Target: 2026-10-20)
 
 **First Deployment**
+
 - [ ] Review and finalize all content before deployment
 - [ ] Set up Vercel project
 - [ ] Configure environment variables (optional GITHUB_TOKEN for higher API limits)
@@ -119,6 +129,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 ### 🔮 Later (Target: 2026-11-01)
 
 **Custom Domain Migration**
+
 - [ ] Purchase/configure custom domain (if not already owned)
 - [ ] Add custom domain to Vercel project
 - [ ] Update `astro.config.mjs` with production domain
@@ -127,6 +138,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [ ] Set up SSL certificate (automatic via Vercel)
 
 **Old Site Retirement**
+
 - [ ] Add prominent redirect banner to old portfolio_react site pointing to new domain
 - [ ] Set up 301 redirects from old Vercel deployment
 - [ ] Update LinkedIn profile link to new portfolio
@@ -135,11 +147,13 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [ ] Add "Archived - See new portfolio at [link]" notice to old repo README
 
 **Analytics & Monitoring (Optional)**
+
 - [ ] Consider adding privacy-friendly analytics (Plausible, Fathom, or Vercel Analytics)
 - [ ] Set up uptime monitoring (if desired)
 - [ ] Configure Vercel deploy notifications
 
 **Content Enhancements (Optional)**
+
 - [ ] Add blog/writing section if desired (collection is scaffolded, just needs content)
 - [ ] Add more projects with detailed descriptions
 - [ ] Consider adding testimonials/recommendations section
@@ -150,6 +164,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 ## Key Decisions Log
 
 ### UI/UX Redesign (2026-10-14)
+
 - **Decision:** Modern futuristic design blending minimal/editorial with engineering aesthetics
 - **Date:** 2026-10-14
 - **Rationale:**
@@ -166,9 +181,10 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Design benchmarked against top developer portfolios (Linear, Vercel, Stripe careers)
 
 ### Technology Stack
+
 - **Decision:** Astro 5 over Next.js
 - **Date:** 2026-10-13
-- **Rationale:** 
+- **Rationale:**
   - Pure content site benefits from static generation
   - Zero JavaScript by default = better performance
   - Perfect Lighthouse scores achievable
@@ -177,6 +193,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Better SEO out of the box
 
 ### Repository Strategy
+
 - **Decision:** New repository instead of updating old one
 - **Date:** 2026-10-13
 - **Rationale:**
@@ -186,6 +203,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Cleaner to archive old repo after successful migration
 
 ### Content Management
+
 - **Decision:** Content in Git (JSON + MDX) instead of CMS
 - **Date:** 2026-10-13
 - **Rationale:**
@@ -197,6 +215,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Simpler deployment (no database)
 
 ### Deployment Strategy
+
 - **Decision:** Vercel as hosting platform
 - **Date:** 2026-10-13
 - **Rationale:**
@@ -208,6 +227,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Excellent Astro support
 
 ### Dark Mode
+
 - **Decision:** System preference + toggle with localStorage
 - **Date:** 2026-10-13
 - **Rationale:**
@@ -223,8 +243,8 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - **Old Portfolio (React SPA):** https://suvam-adhikary-portfolio-react.vercel.app/
 - **Old Repository:** https://github.com/suvamAdhikary/portfolio_react
 - **New Repository:** https://github.com/suvamAdhikary/portfolio
-- **New Production URL:** *(To be deployed via Vercel)*
-- **Custom Domain:** *(To be configured)*
+- **New Production URL:** _(To be deployed via Vercel)_
+- **Custom Domain:** _(To be configured)_
 
 ---
 

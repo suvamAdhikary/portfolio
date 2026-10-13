@@ -9,13 +9,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Trigger Vercel deployment
         if: vars.VERCEL_DEPLOY_HOOK_URL != ''
         run: |
           curl -X POST "${{ vars.VERCEL_DEPLOY_HOOK_URL }}"
-      
+
       - name: Skip if no deploy hook
         if: vars.VERCEL_DEPLOY_HOOK_URL == ''
         run: |

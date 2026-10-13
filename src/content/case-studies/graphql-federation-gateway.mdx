@@ -1,8 +1,8 @@
 ---
-title: "GraphQL Federation Gateway for Microservices"
-description: "Unifying 20+ microservices with centralized observability, reducing production incidents by 60%"
+title: 'GraphQL Federation Gateway for Microservices'
+description: 'Unifying 20+ microservices with centralized observability, reducing production incidents by 60%'
 publishDate: 2025-03-10
-tags: ["GraphQL", "Federation", "Microservices", "Observability", "Node.js"]
+tags: ['GraphQL', 'Federation', 'Microservices', 'Observability', 'Node.js']
 featured: true
 draft: false
 order: 3
@@ -26,6 +26,7 @@ The platform had grown organically to 20+ microservices, each exposing its own R
 - **Inconsistent Error Handling:** Each service had different error formats and conventions
 
 This architectural fragmentation made it difficult to:
+
 - Debug production issues quickly
 - Understand request flows across services
 - Implement consistent authentication and error handling
@@ -40,7 +41,7 @@ Built a gateway layer that composed multiple service graphs into a unified API:
 ```mermaid
 graph TB
     Frontend[Frontend Applications] --> Gateway[GraphQL Federation Gateway]
-    
+
     subgraph "Microservices"
         Gateway --> Auth[Auth Service]
         Gateway --> Learner[Learner Service]
@@ -49,18 +50,18 @@ graph TB
         Gateway --> Assessment[Assessment Service]
         Gateway --> Analytics[Analytics Service]
     end
-    
+
     subgraph "Observability Stack"
         Gateway --> Logs[Centralized Logs]
         Gateway --> Metrics[Metrics Collection]
         Logs --> Kibana[Kibana]
         Metrics --> Grafana[Grafana]
     end
-    
+
     Auth --> AuthDB[(Auth DB)]
     Learner --> LearnerDB[(Learner DB)]
     Content --> ContentDB[(Content DB)]
-    
+
     style Gateway fill:#fff4e1
     style Kibana fill:#e1f5ff
     style Grafana fill:#e1f5ff
@@ -103,8 +104,7 @@ Each service exposed its domain as a GraphQL subgraph:
 
 ```graphql
 # Learner service subgraph
-extend schema
-  @link(url: "https://specs.apollo.dev/federation/v2.0")
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.0")
 
 type Learner @key(fields: "id") {
   id: ID!
@@ -135,18 +135,18 @@ function loggingPlugin() {
     async requestDidStart(requestContext) {
       const requestId = generateRequestId();
       const startTime = Date.now();
-      
+
       return {
         async willSendResponse(responseContext) {
           const duration = Date.now() - startTime;
-          
+
           logger.info('GraphQL Request', {
             requestId,
             operation: requestContext.request.operationName,
             duration,
             success: !responseContext.errors,
             userId: responseContext.contextValue.userId,
-            errors: responseContext.errors?.map(e => e.message),
+            errors: responseContext.errors?.map((e) => e.message),
           });
         },
       };
@@ -170,11 +170,11 @@ function metricsPlugin() {
   return {
     async requestDidStart(requestContext) {
       metrics.increment('graphql.request.total');
-      
+
       return {
         async willSendResponse(responseContext) {
           const operation = requestContext.request.operationName;
-          
+
           if (responseContext.errors) {
             metrics.increment(`graphql.error.${operation}`);
           } else {
@@ -222,6 +222,7 @@ query GetLearnerDashboard($userId: ID!) {
 ### 2. Faster Incident Response
 
 **Centralized logs in Kibana** allowed filtering by:
+
 - Request ID (trace requests across services)
 - Operation name
 - Error type
@@ -229,6 +230,7 @@ query GetLearnerDashboard($userId: ID!) {
 - Time range
 
 **Grafana dashboards** showed:
+
 - Which operations were failing
 - Which subgraphs had elevated error rates
 - Request duration trends
@@ -256,6 +258,7 @@ function formatError(error: GraphQLError) {
 **Problem:** 20+ services needed coordinated schema changes.
 
 **Solution:**
+
 - Schema validation in CI/CD prevented breaking changes
 - Versioned schemas with deprecation warnings
 - Clear communication channels for cross-team schema updates
@@ -265,6 +268,7 @@ function formatError(error: GraphQLError) {
 **Problem:** If the gateway goes down, all API access is lost.
 
 **Solution:**
+
 - Multiple gateway instances behind a load balancer
 - Health checks and automatic failover
 - Independent deployment of gateway vs. subgraphs
@@ -274,6 +278,7 @@ function formatError(error: GraphQLError) {
 **Problem:** Extra hop through gateway could add latency.
 
 **Solution:**
+
 - DataLoader batching to prevent N+1 queries to subgraphs
 - Response caching for frequently accessed data
 - Monitored p95/p99 latencies to ensure acceptable overhead
@@ -288,6 +293,7 @@ function formatError(error: GraphQLError) {
 ### How We Measured
 
 The 60% reduction came from:
+
 - **Before:** Incident count tracked in previous quarters
 - **After:** Lower incident count after gateway + monitoring deployment
 - **Attribution:** Both the unified API and centralized logging contributed; we present them together honestly
@@ -295,16 +301,19 @@ The 60% reduction came from:
 ## Key Learnings
 
 ### Federation Architecture
+
 - Many service graphs composed at the gateway (Federation pattern, not BFF)
 - Gateway should be thin - business logic stays in subgraphs
 - Schema coordination requires process, not just technology
 
 ### Observability
+
 - Centralized logging is critical for distributed systems
 - Request ID tracing across services enables debugging
 - Dashboards are only useful if someone watches them
 
 ### What We Didn't Do
+
 - No invented exactly-once delivery claims
 - No custom schema registry (used Apollo's built-in composition)
 - No claim that the gateway alone caused the 60% reduction (monitoring was equally important)
@@ -312,6 +321,7 @@ The 60% reduction came from:
 ## Impact
 
 The GraphQL Federation gateway with centralized observability transformed how we:
+
 - **Developed:** Frontend teams integrated with one API instead of 20+
 - **Debugged:** Found root causes in minutes instead of hours
 - **Monitored:** Single dashboard showed system health across all services

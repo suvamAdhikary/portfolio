@@ -45,6 +45,7 @@ npm run preview
 ### Profile Information
 
 Edit `data/profile.json` to update:
+
 - Personal details (name, title, location, tagline)
 - Contact information and social links
 - Experience timeline
@@ -63,10 +64,10 @@ To add a new case study:
 
 ```yaml
 ---
-title: "Your Case Study Title"
-description: "Brief description"
+title: 'Your Case Study Title'
+description: 'Brief description'
 publishDate: 2024-01-15
-tags: ["Node.js", "TypeScript", "Kafka"]
+tags: ['Node.js', 'TypeScript', 'Kafka']
 featured: true
 draft: false
 order: 1
@@ -88,7 +89,7 @@ Edit Tailwind theme in `src/styles/global.css`:
 
 ```css
 @theme {
-  --color-primary-500: oklch(0.55 0.20 250); /* Adjust primary color */
+  --color-primary-500: oklch(0.55 0.2 250); /* Adjust primary color */
 }
 ```
 
@@ -133,6 +134,7 @@ Update `robots.txt` with your sitemap URL.
 ### Workflows
 
 **Pull Request Checks** (`.github/workflows/ci.yml`):
+
 - Type checking with `astro check`
 - ESLint validation
 - Build verification
@@ -140,6 +142,7 @@ Update `robots.txt` with your sitemap URL.
 - Lighthouse CI performance audits
 
 **Weekly Deployment** (`.github/workflows/weekly-deploy.yml`):
+
 - Scheduled: Every Monday at 9 AM UTC
 - Manual trigger available
 - Calls Vercel deploy hook to rebuild site
