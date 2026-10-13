@@ -87,11 +87,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [ ] No custom domain configured
 - [ ] No redirect from old portfolio_react site
 
----
-
-### 🚧 In Progress (2026-10-14)
-
-**Modern Futuristic UI/UX Redesign**
+**Modern Futuristic UI/UX Redesign (2026-10-14)**
 
 - [x] Animated hero section with lightweight canvas particle system (node-graph visualization)
 - [x] Glassmorphism card effects throughout
@@ -108,6 +104,13 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] SEO/OG/JSON-LD/sitemap maintained
 - [x] WCAG AA accessibility maintained (contrast, keyboard, focus, reduced motion)
 - [x] Performance optimized (minimal JS via Astro islands, lightweight canvas)
+- [x] Pull request created: https://github.com/suvamAdhikary/portfolio/pull/1
+
+---
+
+### 🚧 In Progress
+
+_Currently empty - no active development_
 
 ---
 
