@@ -1,0 +1,151 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<header id="main-header" class="fixed top-0 z-40 w-full transition-all duration-300">
+  <div class="absolute inset-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 opacity-0 transition-opacity" id="header-bg"></div>
+  
+  <nav class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <a 
+        href="/" 
+        class="group relative text-xl font-bold transition-colors z-10"
+      >
+        <span class="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">SA</span>
+        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-600 to-primary-500 transition-all group-hover:w-full"></span>
+      </a>
+      
+      <div class="flex items-center gap-1 sm:gap-2">
+        <a 
+          href="/#about" 
+          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden md:inline-block"
+          data-section="about"
+        >
+          About
+        </a>
+        <a 
+          href="/#experience" 
+          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden md:inline-block"
+          data-section="experience"
+        >
+          Experience
+        </a>
+        <a 
+          href="/#case-studies" 
+          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden lg:inline-block"
+          data-section="case-studies"
+        >
+          Case Studies
+        </a>
+        <a 
+          href="/#projects" 
+          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden lg:inline-block"
+          data-section="projects"
+        >
+          Projects
+        </a>
+        <a 
+          href="/#contact" 
+          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden sm:inline-block"
+          data-section="contact"
+        >
+          Contact
+        </a>
+        
+        <button
+          id="command-trigger"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700"
+          aria-label="Open command palette"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <kbd class="hidden sm:inline-flex items-center gap-1 text-xs font-mono">
+            <span class="text-xs">⌘K</span>
+          </kbd>
+        </button>
+        
+        <ThemeToggle />
+      </div>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const header = document.getElementById('main-header');
+  const headerBg = document.getElementById('header-bg');
+  const navLinks = document.querySelectorAll('.nav-link');
+  
+  let lastScrollY = window.scrollY;
+  
+  const updateHeader = () => {
+    const scrollY = window.scrollY;
+    
+    if (scrollY > 100) {
+      headerBg?.classList.remove('opacity-0');
+      headerBg?.classList.add('opacity-100');
+    } else {
+      headerBg?.classList.remove('opacity-100');
+      headerBg?.classList.add('opacity-0');
+    }
+    
+    if (scrollY > lastScrollY && scrollY > 200) {
+      header?.classList.add('-translate-y-full');
+    } else {
+      header?.classList.remove('-translate-y-full');
+    }
+    
+    lastScrollY = scrollY;
+  };
+  
+  const updateActiveSection = () => {
+    const sections = Array.from(navLinks).map(link => {
+      const section = (link as HTMLAnchorElement).dataset.section;
+      return section ? document.getElementById(section) : null;
+    }).filter(Boolean) as HTMLElement[];
+    
+    const scrollPosition = window.scrollY + 100;
+    
+    let activeSection = '';
+    sections.forEach(section => {
+      if (section.offsetTop <= scrollPosition && 
+          section.offsetTop + section.offsetHeight > scrollPosition) {
+        activeSection = section.id;
+      }
+    });
+    
+    navLinks.forEach(link => {
+      if ((link as HTMLAnchorElement).dataset.section === activeSection) {
+        link.classList.add('text-primary-600', 'dark:text-primary-400', 'bg-primary-50', 'dark:bg-primary-900/20');
+      } else {
+        link.classList.remove('text-primary-600', 'dark:text-primary-400', 'bg-primary-50', 'dark:bg-primary-900/20');
+      }
+    });
+  };
+  
+  let ticking = false;
+  const onScroll = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        updateHeader();
+        updateActiveSection();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  };
+  
+  window.addEventListener('scroll', onScroll, { passive: true });
+  updateHeader();
+  updateActiveSection();
+  
+  const commandTrigger = document.getElementById('command-trigger');
+  commandTrigger?.addEventListener('click', () => {
+    const event = new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: true,
+      bubbles: true
+    });
+    document.dispatchEvent(event);
+  });
+</script>

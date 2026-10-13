@@ -1,0 +1,172 @@
+---
+---
+
+<div 
+  id="command-palette" 
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="command-palette-title"
+>
+  <div class="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-scale-in">
+    <div class="border-b border-gray-200 dark:border-gray-800 p-4">
+      <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input 
+          type="text" 
+          id="command-input"
+          placeholder="Type to search sections, case studies, or projects..."
+          class="flex-1 bg-transparent border-none outline-none text-lg placeholder:text-gray-400 dark:placeholder:text-gray-600"
+          aria-label="Search navigation"
+        />
+        <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-gray-800 rounded">
+          ESC
+        </kbd>
+      </div>
+    </div>
+    
+    <div id="command-results" class="max-h-96 overflow-y-auto p-2">
+      <div class="text-xs font-mono text-gray-500 dark:text-gray-400 px-3 py-2">Quick Navigation</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const palette = document.getElementById('command-palette');
+  const input = document.getElementById('command-input') as HTMLInputElement;
+  const results = document.getElementById('command-results');
+  
+  const commands = [
+    { name: 'About', section: 'about', icon: '👤' },
+    { name: 'Experience', section: 'experience', icon: '💼' },
+    { name: 'Case Studies', section: 'case-studies', icon: '📚' },
+    { name: 'Projects', section: 'projects', icon: '🚀' },
+    { name: 'Skills', section: 'skills', icon: '⚡' },
+    { name: 'Education', section: 'education', icon: '🎓' },
+    { name: 'Contact', section: 'contact', icon: '✉️' },
+  ];
+  
+  let selectedIndex = 0;
+  
+  const renderResults = (filter: string = '') => {
+    if (!results) return;
+    
+    const filtered = commands.filter(cmd => 
+      cmd.name.toLowerCase().includes(filter.toLowerCase())
+    );
+    
+    if (filtered.length === 0) {
+      results.innerHTML = '<div class="px-3 py-8 text-center text-gray-500 dark:text-gray-400">No results found</div>';
+      return;
+    }
+    
+    results.innerHTML = filtered.map((cmd, idx) => `
+      <a 
+        href="#${cmd.section}"
+        class="command-item flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${idx === selectedIndex ? 'bg-primary-100 dark:bg-primary-900/30' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}"
+        data-index="${idx}"
+      >
+        <span class="text-2xl">${cmd.icon}</span>
+        <span class="flex-1 font-medium">${cmd.name}</span>
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    `).join('');
+    
+    const items = results.querySelectorAll('.command-item');
+    items.forEach((item, idx) => {
+      item.addEventListener('click', () => {
+        closePalette();
+      });
+    });
+  };
+  
+  const openPalette = () => {
+    if (!palette || !input) return;
+    palette.classList.remove('hidden');
+    palette.classList.add('flex');
+    input.value = '';
+    input.focus();
+    selectedIndex = 0;
+    renderResults();
+  };
+  
+  const closePalette = () => {
+    if (!palette) return;
+    palette.classList.add('hidden');
+    palette.classList.remove('flex');
+  };
+  
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      openPalette();
+    }
+    
+    if (e.key === 'Escape' && palette && !palette.classList.contains('hidden')) {
+      closePalette();
+    }
+  });
+  
+  if (input) {
+    input.addEventListener('input', (e) => {
+      selectedIndex = 0;
+      renderResults((e.target as HTMLInputElement).value);
+    });
+    
+    input.addEventListener('keydown', (e) => {
+      const items = results?.querySelectorAll('.command-item');
+      if (!items) return;
+      
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+        renderResults(input.value);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, 0);
+        renderResults(input.value);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const selected = items[selectedIndex] as HTMLAnchorElement;
+        if (selected) {
+          selected.click();
+        }
+      }
+    });
+  }
+  
+  if (palette) {
+    palette.addEventListener('click', (e) => {
+      if (e.target === palette) {
+        closePalette();
+      }
+    });
+  }
+</script>
+
+<style>
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .animate-scale-in {
+      animation: none;
+    }
+  }
+</style>

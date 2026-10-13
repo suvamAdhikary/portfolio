@@ -1,7 +1,8 @@
 ---
 import { getCollection, type CollectionEntry, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
+import StickyNav from '../../components/StickyNav.astro';
+import CommandPalette from '../../components/CommandPalette.astro';
 import Footer from '../../components/Footer.astro';
 
 export async function getStaticPaths() {
@@ -32,34 +33,45 @@ const formattedDate = study.data.publishDate.toLocaleDateString('en-US', {
   title={`${study.data.title} | Suvam Adhikary`}
   description={study.data.description}
 >
-  <Header />
+  <StickyNav />
+  <CommandPalette />
   
-  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
     <article class="max-w-4xl mx-auto">
-      <header class="mb-12">
+      <header class="mb-16">
         <a 
           href="/#case-studies" 
-          class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:underline mb-6"
+          class="group inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-8 transition-colors"
         >
-          ← Back to all case studies
+          <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back to all case studies
         </a>
         
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+        <div class="inline-block mb-6">
+          <span class="text-sm font-mono text-primary-600 dark:text-primary-400 tracking-wider uppercase">Case Study</span>
+        </div>
+        
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
           {study.data.title}
         </h1>
         
-        <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+        <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
           {study.data.description}
         </p>
         
-        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-          <time datetime={study.data.publishDate.toISOString()}>
+        <div class="flex flex-wrap items-center gap-4 text-sm">
+          <time datetime={study.data.publishDate.toISOString()} class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
             {formattedDate}
           </time>
-          <span>•</span>
+          <span class="text-gray-400 dark:text-gray-600">•</span>
           <div class="flex flex-wrap gap-2">
             {study.data.tags.map((tag) => (
-              <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+              <span class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-mono">
                 {tag}
               </span>
             ))}
@@ -69,30 +81,33 @@ const formattedDate = study.data.publishDate.toLocaleDateString('en-US', {
       
       <div class="prose prose-lg dark:prose-invert max-w-none
         prose-headings:font-bold prose-headings:tracking-tight
-        prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
-        prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
-        prose-h4:text-xl prose-h4:mt-6 prose-h4:mb-3
-        prose-p:text-gray-700 dark:prose-p:text-gray-300
-        prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline
-        prose-strong:text-gray-900 dark:prose-strong:text-gray-100
-        prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
-        prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800
+        prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:border-b prose-h2:border-gray-200 dark:prose-h2:border-gray-800 prose-h2:pb-3
+        prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-4
+        prose-h4:text-xl prose-h4:mt-8 prose-h4:mb-3
+        prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-lg
+        prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-a:font-medium
+        prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
+        prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
+        prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-xl prose-pre:shadow-lg
         prose-ul:text-gray-700 dark:prose-ul:text-gray-300
         prose-ol:text-gray-700 dark:prose-ol:text-gray-300
-        prose-li:marker:text-primary-600 dark:prose-li:marker:text-primary-400
-        prose-blockquote:border-primary-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
-        prose-hr:border-gray-200 dark:prose-hr:border-gray-800
-        prose-img:rounded-lg prose-img:shadow-lg
+        prose-li:marker:text-primary-600 dark:prose-li:marker:text-primary-400 prose-li:my-2
+        prose-blockquote:border-l-4 prose-blockquote:border-primary-500 prose-blockquote:bg-primary-50 dark:prose-blockquote:bg-primary-900/10 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
+        prose-hr:border-gray-200 dark:prose-hr:border-gray-800 prose-hr:my-12
+        prose-img:rounded-2xl prose-img:shadow-2xl prose-img:border prose-img:border-gray-200 dark:prose-img:border-gray-800
       ">
         <Content />
       </div>
       
-      <div class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+      <div class="mt-20 pt-8 border-t border-gray-200 dark:border-gray-800">
         <a 
           href="/#case-studies" 
-          class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:underline"
+          class="group inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-xl font-medium transition-all hover:shadow-lg hover:-translate-y-0.5"
         >
-          ← Back to all case studies
+          <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back to all case studies
         </a>
       </div>
     </article>

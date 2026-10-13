@@ -81,9 +81,24 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 
 ---
 
-### 🚧 In Progress
+### 🚧 In Progress (2026-10-14)
 
-*Currently empty - no active development*
+**Modern Futuristic UI/UX Redesign**
+- [x] Animated hero section with lightweight canvas particle system (node-graph visualization)
+- [x] Glassmorphism card effects throughout
+- [x] Bento grid for key metrics and highlights
+- [x] Command palette (Cmd/Ctrl+K) for quick navigation
+- [x] Scroll-reveal animations with reduced-motion support
+- [x] Animated metric counters with intersection observer
+- [x] Sticky navigation with active section highlighting
+- [x] Polished case study detail pages with enhanced typography
+- [x] Strong editorial typography with gradient text effects
+- [x] Engineering aesthetic: monospace accents, system visuals, terminal touches
+- [x] Bold modern design: gradient/glow accents, motion, enhanced card layouts
+- [x] All existing content preserved unchanged
+- [x] SEO/OG/JSON-LD/sitemap maintained
+- [x] WCAG AA accessibility maintained (contrast, keyboard, focus, reduced motion)
+- [x] Performance optimized (minimal JS via Astro islands, lightweight canvas)
 
 ---
 
@@ -133,6 +148,22 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 ---
 
 ## Key Decisions Log
+
+### UI/UX Redesign (2026-10-14)
+- **Decision:** Modern futuristic design blending minimal/editorial with engineering aesthetics
+- **Date:** 2026-10-14
+- **Rationale:**
+  - Original design was too plain and traditional for a backend engineer portfolio
+  - Animated canvas hero creates immediate visual impact without heavy 3D libraries
+  - Bento grid efficiently showcases key metrics and achievements
+  - Command palette (Cmd+K) provides power-user navigation matching developer expectations
+  - Glassmorphism and gradient effects add depth while maintaining performance
+  - Scroll animations create engagement without compromising accessibility
+  - Sticky nav with active sections improves navigation UX
+  - Enhanced typography and spacing create editorial quality
+  - All animations respect prefers-reduced-motion for accessibility
+  - Maintained existing SEO/accessibility/performance standards
+  - Design benchmarked against top developer portfolios (Linear, Vercel, Stripe careers)
 
 ### Technology Stack
 - **Decision:** Astro 5 over Next.js
