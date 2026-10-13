@@ -2,9 +2,9 @@
   "name": "Suvam Adhikary",
   "title": "Backend Engineer",
   "location": "Bengaluru, India",
-  "tagline": "Building scalable distributed systems with Node.js, TypeScript, and event-driven architectures",
+  "tagline": "Building production APIs, microservices, and event-driven systems with Node.js, TypeScript, Kafka, and MongoDB",
   "openToRoles": true,
-  "email": "suvam.adhikary@example.com",
+  "email": "adhikary.saheb408@gmail.com",
   "links": {
     "github": "https://github.com/suvamAdhikary",
     "linkedin": "https://www.linkedin.com/in/suvam-adhikary",
@@ -13,24 +13,64 @@
   "experience": [
     {
       "company": "Neutrinos",
-      "position": "Backend Engineer",
-      "startDate": "2022-01",
+      "position": "Software Engineer II",
+      "startDate": "2026-04",
       "endDate": null,
       "current": true,
       "location": "Bengaluru, India",
       "highlights": [
-        "TODO: Add key achievements with metrics (e.g., improved API response times, reduced infrastructure costs, increased throughput)",
-        "TODO: Highlight major projects involving Kafka, GraphQL Federation, Kubernetes deployments",
-        "TODO: Mention team collaboration, technical leadership, or mentoring activities"
+        "Hardened 15+ Node.js/TypeScript API flows for an enterprise insurance platform through parameterized MSSQL queries, structured logging, standardized error handling, JWT middleware, and PII-safe logs",
+        "Delivered and refactored APIs across authentication, users, policies, motor, and claims; also built admin CMS and reporting APIs for internal operations",
+        "Deployed Kubernetes workloads from AWS EC2 using kubectl apply; monitored rollouts, pod health, and logs with k9s during releases and production troubleshooting"
+      ]
+    },
+    {
+      "company": "upGrad Education",
+      "position": "Software Engineer II",
+      "startDate": "2024-07",
+      "endDate": "2026-02",
+      "current": false,
+      "location": "Hyderabad, India",
+      "highlights": [
+        "Redesigned assignment re-upload using MongoDB bulkWrite, reducing database round-trips by 90% for a platform serving 15K+ active learners",
+        "Optimized aggregation projections and stages, reducing per-document memory from 145KB to 5KB and improving query throughput by 5x",
+        "Managed Kafka producers and consumers across 21+ microservices processing 100K+ events/day, with retries and dead-letter handling for partial failures",
+        "Built a GraphQL Federation gateway integrating 20+ microservices and improved observability with Kibana and Grafana, reducing production incidents by 60%"
+      ]
+    },
+    {
+      "company": "Educational Initiatives",
+      "position": "Lead Software Developer",
+      "startDate": "2023-05",
+      "endDate": "2024-06",
+      "current": false,
+      "location": "Bengaluru, India",
+      "highlights": [
+        "Delivered backend infrastructure for foundational literacy programs supporting 10K+ learners, including offline synchronization and conflict resolution using MongoDB and Redis",
+        "Designed and built a 6-service microservices backend with API gateway and data access layer for new features while integrating with legacy systems",
+        "Built reusable TypeScript libraries and resilient REST APIs with retries, batching, and background processing, reducing development effort by 30%"
+      ]
+    },
+    {
+      "company": "Lead School",
+      "position": "Software Development Engineer",
+      "startDate": "2022-01",
+      "endDate": "2023-05",
+      "current": false,
+      "location": "Remote",
+      "highlights": [
+        "Developed Node.js REST APIs with MongoDB and Redis for school products including Genie (extracurricular management), Epsilon (content review), and Assessment (K-12 paper generation)",
+        "Improved backend response times by 60% for 10K+ weekly users through Redis caching and API optimizations",
+        "Built reusable API and React/WebView modules enabling web and mobile deployment"
       ]
     }
   ],
   "skills": {
-    "Backend & Languages": ["Node.js", "TypeScript", "JavaScript"],
-    "Frameworks & Tools": ["NestJS", "Express.js", "GraphQL Federation"],
-    "Data & Messaging": ["MongoDB", "PostgreSQL", "MySQL", "Apache Kafka", "Redis"],
-    "DevOps & Cloud": ["Kubernetes", "Docker", "AWS", "CI/CD", "Terraform"],
-    "Architecture": ["Microservices", "Event-Driven Architecture", "REST APIs", "GraphQL"]
+    "Backend & Languages": ["Node.js", "TypeScript", "JavaScript", "SQL", "Python"],
+    "Frameworks & Tools": ["NestJS", "Express.js", "GraphQL Federation", "REST APIs"],
+    "Data & Messaging": ["MongoDB", "MSSQL", "MySQL", "PostgreSQL", "Redis", "Apache Kafka", "RabbitMQ"],
+    "DevOps & Cloud": ["Kubernetes", "kubectl", "k9s", "Docker", "AWS EC2", "CI/CD"],
+    "Observability": ["Winston", "Kibana", "Grafana", "Structured Logging"]
   },
   "education": [
     {

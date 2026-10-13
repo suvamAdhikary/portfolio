@@ -1,0 +1,150 @@
+---
+title: "MongoDB Performance Optimization at Scale"
+description: "Reducing database round-trips by 90% and improving query throughput by 5x for 15K+ active learners"
+publishDate: 2024-11-15
+tags: ["MongoDB", "Performance", "Node.js", "TypeScript", "Optimization"]
+featured: true
+draft: false
+order: 1
+---
+
+## Overview
+
+At upGrad Education, I optimized MongoDB operations for a learning platform serving 15K+ active learners. Through strategic use of `bulkWrite` operations and aggregation pipeline optimization, I reduced database round-trips by 90% and improved query throughput by 5x.
+
+**Technologies:** MongoDB, Node.js, TypeScript, aggregation pipelines
+
+**Role:** Software Engineer II | **Duration:** Jul 2024 - Feb 2026
+
+## The Challenge
+
+The platform faced two critical performance bottlenecks:
+
+1. **Assignment Re-upload Problem:** Learners re-uploading assignments triggered individual MongoDB writes for each file/document update. During peak re-submission windows with 15K+ active learners, this created excessive database round-trips.
+
+2. **Aggregation Memory Overhead:** MongoDB aggregation pipelines were loading fat nested documents (complete history, extra metadata) when APIs only needed a small slice of data. Memory per document in the pipeline sat around 145KB, limiting query throughput under load.
+
+## Solution 1: Bulk Write Optimization
+
+### The Problem
+
+Each file/document update in an assignment re-upload was its own MongoDB `updateOne` operation. If a learner re-uploaded 10 files, that meant 10 separate database writes.
+
+### The Approach
+
+Batched all updates into a single `bulkWrite` operation per re-upload request instead of N individual `updateOne` calls.
+
+```typescript
+// Before: Multiple individual updates
+for (const file of files) {
+  await collection.updateOne(
+    { _id: file.id },
+    { $set: { status: 'uploaded', url: file.url } }
+  );
+}
+
+// After: Single bulk operation
+const bulkOps = files.map(file => ({
+  updateOne: {
+    filter: { _id: file.id },
+    update: { $set: { status: 'uploaded', url: file.url } }
+  }
+}));
+
+await collection.bulkWrite(bulkOps);
+```
+
+### Results
+
+- **~90% reduction in database round-trips** (10 individual writes became 1 batch operation)
+- Platform remained stable during peak re-submission windows
+- No change to product behavior from the user perspective
+
+## Solution 2: Aggregation Pipeline Optimization
+
+### The Problem
+
+Aggregation pipelines were carrying full nested documents through multiple stages:
+
+```typescript
+// Problematic pipeline - loads everything
+db.collection.aggregate([
+  { $match: { courseId: courseId } },
+  { $lookup: {
+      from: 'submissions',
+      localField: '_id',
+      foreignField: 'learnerId',
+      as: 'submissions'
+    }
+  },
+  { $lookup: {
+      from: 'progress',
+      localField: '_id',
+      foreignField: 'learnerId',
+      as: 'progress'
+    }
+  }
+  // Later stages work with fat ~145KB documents
+]);
+```
+
+### The Approach
+
+Used tight `$project` stages to move only required fields through `$lookup` and subsequent stages:
+
+```typescript
+// Optimized pipeline - project early
+db.collection.aggregate([
+  { $match: { courseId: courseId } },
+  { $project: {
+      _id: 1,
+      name: 1,
+      email: 1
+      // Only fields actually needed downstream
+    }
+  },
+  { $lookup: {
+      from: 'submissions',
+      localField: '_id',
+      foreignField: 'learnerId',
+      as: 'submissions',
+      pipeline: [
+        { $project: { status: 1, submittedAt: 1 } }
+      ]
+    }
+  }
+  // Subsequent stages work with slim ~5KB documents
+]);
+```
+
+### Results
+
+- **Per-document memory reduced from ~145KB to ~5KB** in the pipeline
+- **~5x improvement in query throughput** - same queries completing much faster under load
+- Measured as before/after completions per unit time for the same queries
+
+## Key Learnings
+
+### Bulk Operations
+- Batching reduces network round-trips significantly
+- The win came from consolidating operations, not from ordered vs unordered semantics
+- Always measure "before vs after" on the actual workflow
+
+### Aggregation Optimization
+- Project early and often - don't carry data you don't need through expensive stages
+- Memory per document in the pipeline directly affects throughput
+- Use `$project` within `$lookup` pipelines to limit joined data
+
+### Measurement
+- 90% round-trip reduction: order of magnitude change (10 writes → 1 batch)
+- 5x throughput: measured as query completions per unit time after optimization
+- Both metrics came from profiling and comparing before/after on the same workflows
+
+## Impact
+
+These optimizations ensured the platform could handle:
+- Peak re-submission windows without degradation
+- Higher concurrent query load with the same infrastructure
+- Stable performance for 15K+ active learners
+
+The combination of bulk writes and aggregation optimization demonstrated that understanding MongoDB's performance characteristics at the operation level can yield significant real-world improvements without architectural changes.

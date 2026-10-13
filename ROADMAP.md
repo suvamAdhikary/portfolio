@@ -38,6 +38,13 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Featured: workflow-engine-backend, visucode (live link), identity-reconciliation, logic-composer, workflow-engine-frontend
   - Earlier work: Capdas-ECommerce, dineout_clone, Rhythm, MyGlamm-with-Backend, deliveroo-clone (labeled as 2021-23 bootcamp/team projects)
   - Excluded portfolio_react and other non-production repos
+- [x] Real content from career documents (2026-10-13)
+  - Experience timeline: All 4 employers (Neutrinos Apr 2026-Present, upGrad Jul 2024-Feb 2026, Educational Initiatives May 2023-Jun 2024, Lead School Jan 2022-May 2023) with real metrics and impact bullets
+  - About section rewritten with real experience and achievements
+  - Skills updated with actual technologies used (added MSSQL, k9s, Observability tools)
+  - 3 real case studies created from STAR stories: MongoDB Performance Optimization (90% round-trip reduction, 5x throughput), Kafka Event Architecture (100K+ events/day, 21+ services), GraphQL Federation Gateway (20+ microservices, 60% incident reduction)
+  - Removed 4 placeholder case studies that couldn't be supported by real work
+  - All facts verified against resume and STAR story documents; no invented metrics or claims
 
 **SEO & Quality (2026-10-13)**
 - [x] Open Graph and Twitter Card meta tags
@@ -73,17 +80,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 
 ### 📋 Next (Target: 2026-10-20)
 
-**Content Population**
-- [ ] Fill real metrics in experience section
-  - Replace "TODO: Add key achievements with metrics" with actual numbers
-  - Quantify impact at Neutrinos (throughput, latency, cost savings, etc.)
-- [ ] Complete all 4 case study MDX files with real content:
-  - [ ] Kafka Event Pipeline: actual architecture, code samples, results
-  - [ ] GraphQL Federation: real subgraph schemas, caching strategy, metrics
-  - [ ] Kubernetes Deployment: actual deployment manifests, CI/CD configs, outcomes
-  - [ ] Resilient APIs: real error handling code, monitoring setup, performance numbers
-- [ ] Replace Mermaid diagram placeholders with actual system architectures
-- [ ] Validate all links and external references
+**Remaining Content Items**
 - [ ] Add resume PDF to public/ directory
 
 **First Deployment**
