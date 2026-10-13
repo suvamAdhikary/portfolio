@@ -50,6 +50,10 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Used PyMuPDF for true text redaction (not just visual covering)
   - Verified with text extraction: phone number completely removed
   - Web-safe resume available at /resume.pdf
+- [x] Migrated to GitHub as source of truth (2026-10-13)
+  - Pushed full main branch with history to https://github.com/suvamAdhikary/portfolio
+  - GitHub repo will be connected to Vercel for deployment
+  - Removed temporary Origin-hosted repository references
 
 **SEO & Quality (2026-10-13)**
 - [x] Open Graph and Twitter Card meta tags
@@ -187,8 +191,8 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 
 - **Old Portfolio (React SPA):** https://suvam-adhikary-portfolio-react.vercel.app/
 - **Old Repository:** https://github.com/suvamAdhikary/portfolio_react
-- **New Repository:** *(Current repository)*
-- **New Production URL:** *(To be deployed)*
+- **New Repository:** https://github.com/suvamAdhikary/portfolio
+- **New Production URL:** *(To be deployed via Vercel)*
 - **Custom Domain:** *(To be configured)*
 
 ---
