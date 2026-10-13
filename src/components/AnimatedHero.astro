@@ -118,7 +118,7 @@ import profile from '../../data/profile.json';
     <a
       href="#highlights"
       class="flex flex-col items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-      aria-label="Scroll to highlights"
+      aria-label="Scroll to explore highlights"
     >
       <span class="font-mono text-xs">Scroll to explore</span>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,21 +140,24 @@ import profile from '../../data/profile.json';
     if (ctx) {
       let animationId: number;
       let nodes: Array<{ x: number; y: number; vx: number; vy: number }> = [];
+      // Cached canvas size (from ResizeObserver) so the draw loop never forces a layout
+      let width = 0;
+      let height = 0;
+      let running = false;
+      let visible = true;
 
       const resize = () => {
-        canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-        canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        const dpr = window.devicePixelRatio;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       };
 
       const init = () => {
-        const nodeCount = Math.min(
-          50,
-          Math.floor((canvas.offsetWidth * canvas.offsetHeight) / 15000)
-        );
+        const nodeCount = Math.min(50, Math.floor((width * height) / 15000));
         nodes = Array.from({ length: nodeCount }, () => ({
-          x: Math.random() * canvas.offsetWidth,
-          y: Math.random() * canvas.offsetHeight,
+          x: Math.random() * width,
+          y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.5,
           vy: (Math.random() - 0.5) * 0.5,
         }));
@@ -162,14 +165,14 @@ import profile from '../../data/profile.json';
 
       const draw = () => {
         const isDark = document.documentElement.classList.contains('dark');
-        ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+        ctx.clearRect(0, 0, width, height);
 
         nodes.forEach((node) => {
           node.x += node.vx;
           node.y += node.vy;
 
-          if (node.x < 0 || node.x > canvas.offsetWidth) node.vx *= -1;
-          if (node.y < 0 || node.y > canvas.offsetHeight) node.vy *= -1;
+          if (node.x < 0 || node.x > width) node.vx *= -1;
+          if (node.y < 0 || node.y > height) node.vy *= -1;
 
           ctx.beginPath();
           ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
@@ -202,17 +205,37 @@ import profile from '../../data/profile.json';
         animationId = requestAnimationFrame(animate);
       };
 
+      const start = () => {
+        if (running || !visible || width === 0) return;
+        running = true;
+        animationId = requestAnimationFrame(animate);
+      };
+
+      const stop = () => {
+        running = false;
+        cancelAnimationFrame(animationId);
+      };
+
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (!prefersReducedMotion) {
-        resize();
-        init();
-        animate();
-
-        window.addEventListener('resize', () => {
+        const resizeObserver = new ResizeObserver((entries) => {
+          const rect = entries[0].contentRect;
+          width = rect.width;
+          height = rect.height;
           resize();
           init();
+          start();
         });
+        resizeObserver.observe(canvas);
+
+        // Pause the animation while the hero is off-screen
+        const visibilityObserver = new IntersectionObserver((entries) => {
+          visible = entries[0].isIntersecting;
+          if (visible) start();
+          else stop();
+        });
+        visibilityObserver.observe(canvas);
 
         const observer = new MutationObserver(() => {
           draw();

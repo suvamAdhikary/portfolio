@@ -83,7 +83,7 @@ import ThemeToggle from './ThemeToggle.astro';
   const headerBg = document.getElementById('header-bg');
   const navLinks = document.querySelectorAll('.nav-link');
 
-  let lastScrollY = window.scrollY;
+  let lastScrollY = 0;
 
   const updateHeader = () => {
     const scrollY = window.scrollY;
@@ -157,8 +157,13 @@ import ThemeToggle from './ThemeToggle.astro';
   };
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  updateHeader();
-  updateActiveSection();
+  // Defer the initial geometry reads until after first paint to avoid a forced reflow
+  window.requestAnimationFrame(() => {
+    setTimeout(() => {
+      updateHeader();
+      updateActiveSection();
+    }, 0);
+  });
 
   const commandTrigger = document.getElementById('command-trigger');
   commandTrigger?.addEventListener('click', () => {
