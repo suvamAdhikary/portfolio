@@ -1,0 +1,191 @@
+# GitHub Migration Instructions
+
+## Status: Ready to Push ✓
+
+Your portfolio repository is **fully prepared** and ready to be pushed to GitHub. All commits are ready, but GitHub authentication is required.
+
+---
+
+## Current State
+
+- ✅ All code committed (7 commits on `main` branch)
+- ✅ ROADMAP.md updated with GitHub URL
+- ✅ Git remote configured: `github` → `https://github.com/suvamAdhikary/portfolio.git`
+- ✅ Latest commit: `d3cefa8` - "docs: update ROADMAP with GitHub migration"
+- ⏳ Awaiting: Push to GitHub (requires authentication)
+
+---
+
+## Option 1: Push from Local Machine (Recommended)
+
+If you have this repository cloned locally (at `D:\mh\projects\portfolio`):
+
+```bash
+# Navigate to your local repository
+cd D:\mh\projects\portfolio
+
+# Add GitHub remote (if not already added)
+git remote add github https://github.com/suvamAdhikary/portfolio.git
+
+# Pull latest changes from Origin/Cloud Agent
+git pull origin main
+
+# Push to GitHub with full history
+git push -u github main
+
+# Verify push succeeded
+git log --oneline -3
+```
+
+**Expected Result:**
+```
+d3cefa8 docs: update ROADMAP with GitHub migration (2026-10-13)
+02a3d2b feat: add redacted resume PDF for web deployment
+cdfd709 feat: replace all placeholder content with real career facts
+```
+
+---
+
+## Option 2: Push from Cloud Agent Environment
+
+If you want to push directly from this cloud environment:
+
+### Using GitHub CLI (gh):
+
+```bash
+# Authenticate with GitHub
+gh auth login
+
+# Push to GitHub
+git push -u github main
+```
+
+### Using Personal Access Token:
+
+```bash
+# Create a token at: https://github.com/settings/tokens
+# Required scopes: repo (full control of private repositories)
+
+# Push with token
+git push https://<YOUR_USERNAME>:<YOUR_TOKEN>@github.com/suvamAdhikary/portfolio.git main
+
+# Or configure credential helper
+git config credential.helper store
+git push -u github main
+# (Enter username and token when prompted)
+```
+
+---
+
+## Option 3: Download and Re-upload
+
+If push access is not available:
+
+1. **Download repository as archive:**
+   ```bash
+   cd /workspace
+   tar -czf portfolio-backup.tar.gz --exclude=node_modules --exclude=.git .
+   ```
+
+2. **On your local machine:**
+   ```bash
+   # Clone the empty GitHub repo
+   git clone https://github.com/suvamAdhikary/portfolio.git
+   cd portfolio
+   
+   # Extract the archive (excluding tar)
+   # Copy all files from the cloud agent
+   
+   # Initialize git and push
+   git add -A
+   git commit -m "Initial commit: Complete Astro portfolio with real content"
+   git push -u origin main
+   ```
+
+---
+
+## Verification After Push
+
+Once pushed to GitHub, verify:
+
+```bash
+# Check GitHub remote
+git remote -v
+
+# Verify commits on GitHub
+git ls-remote github
+```
+
+**Expected output should show:**
+- `main` branch at commit `d3cefa8` or later
+- All 7 commits preserved in history
+
+---
+
+## Next Steps After GitHub Push
+
+1. **Connect Vercel to GitHub:**
+   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "Add New" → "Project"
+   - Import `suvamAdhikary/portfolio`
+   - Framework Preset: **Astro**
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+   - Install Command: `npm install`
+
+2. **Configure Environment Variables (Optional):**
+   - `GITHUB_TOKEN` - For higher API rate limits on projects section
+
+3. **Set up Deploy Hook (for weekly rebuilds):**
+   - Vercel → Project Settings → Git → Deploy Hooks
+   - Create hook: "Weekly Deploy" on `main` branch
+   - Add URL to GitHub → Settings → Secrets → Variables
+   - Add repository variable: `VERCEL_DEPLOY_HOOK_URL`
+
+4. **Update Old Portfolio:**
+   - Add redirect banner to https://suvam-adhikary-portfolio-react.vercel.app/
+   - Point users to new portfolio URL
+
+---
+
+## Troubleshooting
+
+### "Authentication failed"
+- Ensure your GitHub token has `repo` scope
+- Or use SSH: `git remote set-url github git@github.com:suvamAdhikary/portfolio.git`
+
+### "Repository not found"
+- Verify repository exists: https://github.com/suvamAdhikary/portfolio
+- Check repository name spelling
+- Ensure you have write access
+
+### "Updates were rejected"
+- If the GitHub repo isn't empty: `git push -u github main --force` (only for initial push)
+
+---
+
+## Summary
+
+**What's Ready:**
+- ✅ Complete portfolio with 3 real case studies
+- ✅ All 4 employers in experience timeline
+- ✅ Redacted resume PDF
+- ✅ Curated projects section
+- ✅ All checks passing (type check, lint, build)
+- ✅ 7 commits on main branch with full history
+
+**What's Needed:**
+- ⏳ GitHub authentication to complete push
+- ⏳ Manual push command execution
+
+**Repository Details:**
+- **Branch:** `main`
+- **Latest Commit:** `d3cefa8`
+- **Total Commits:** 7
+- **Files:** 36 files (excluding node_modules)
+- **GitHub URL:** https://github.com/suvamAdhikary/portfolio
+
+---
+
+**Created:** 2026-10-13  
+**Cloud Agent:** This document was generated by your cloud agent after preparing the repository for GitHub migration.
