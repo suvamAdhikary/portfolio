@@ -1,8 +1,8 @@
 ---
-title: "MongoDB Performance Optimization at Scale"
-description: "Reducing database round-trips by 90% and improving query throughput by 5x for 15K+ active learners"
+title: 'MongoDB Performance Optimization at Scale'
+description: 'Reducing database round-trips by 90% and improving query throughput by 5x for 15K+ active learners'
 publishDate: 2024-11-15
-tags: ["MongoDB", "Performance", "Node.js", "TypeScript", "Optimization"]
+tags: ['MongoDB', 'Performance', 'Node.js', 'TypeScript', 'Optimization']
 featured: true
 draft: false
 order: 1
@@ -37,18 +37,15 @@ Batched all updates into a single `bulkWrite` operation per re-upload request in
 ```typescript
 // Before: Multiple individual updates
 for (const file of files) {
-  await collection.updateOne(
-    { _id: file.id },
-    { $set: { status: 'uploaded', url: file.url } }
-  );
+  await collection.updateOne({ _id: file.id }, { $set: { status: 'uploaded', url: file.url } });
 }
 
 // After: Single bulk operation
-const bulkOps = files.map(file => ({
+const bulkOps = files.map((file) => ({
   updateOne: {
     filter: { _id: file.id },
-    update: { $set: { status: 'uploaded', url: file.url } }
-  }
+    update: { $set: { status: 'uploaded', url: file.url } },
+  },
 }));
 
 await collection.bulkWrite(bulkOps);
@@ -70,20 +67,22 @@ Aggregation pipelines were carrying full nested documents through multiple stage
 // Problematic pipeline - loads everything
 db.collection.aggregate([
   { $match: { courseId: courseId } },
-  { $lookup: {
+  {
+    $lookup: {
       from: 'submissions',
       localField: '_id',
       foreignField: 'learnerId',
-      as: 'submissions'
-    }
+      as: 'submissions',
+    },
   },
-  { $lookup: {
+  {
+    $lookup: {
       from: 'progress',
       localField: '_id',
       foreignField: 'learnerId',
-      as: 'progress'
-    }
-  }
+      as: 'progress',
+    },
+  },
   // Later stages work with fat ~145KB documents
 ]);
 ```
@@ -96,23 +95,23 @@ Used tight `$project` stages to move only required fields through `$lookup` and 
 // Optimized pipeline - project early
 db.collection.aggregate([
   { $match: { courseId: courseId } },
-  { $project: {
+  {
+    $project: {
       _id: 1,
       name: 1,
-      email: 1
+      email: 1,
       // Only fields actually needed downstream
-    }
+    },
   },
-  { $lookup: {
+  {
+    $lookup: {
       from: 'submissions',
       localField: '_id',
       foreignField: 'learnerId',
       as: 'submissions',
-      pipeline: [
-        { $project: { status: 1, submittedAt: 1 } }
-      ]
-    }
-  }
+      pipeline: [{ $project: { status: 1, submittedAt: 1 } }],
+    },
+  },
   // Subsequent stages work with slim ~5KB documents
 ]);
 ```
@@ -126,16 +125,19 @@ db.collection.aggregate([
 ## Key Learnings
 
 ### Bulk Operations
+
 - Batching reduces network round-trips significantly
 - The win came from consolidating operations, not from ordered vs unordered semantics
 - Always measure "before vs after" on the actual workflow
 
 ### Aggregation Optimization
+
 - Project early and often - don't carry data you don't need through expensive stages
 - Memory per document in the pipeline directly affects throughput
 - Use `$project` within `$lookup` pipelines to limit joined data
 
 ### Measurement
+
 - 90% round-trip reduction: order of magnitude change (10 writes → 1 batch)
 - 5x throughput: measured as query completions per unit time after optimization
 - Both metrics came from profiling and comparing before/after on the same workflows
@@ -143,6 +145,7 @@ db.collection.aggregate([
 ## Impact
 
 These optimizations ensured the platform could handle:
+
 - Peak re-submission windows without degradation
 - Higher concurrent query load with the same infrastructure
 - Stable performance for 15K+ active learners

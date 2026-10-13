@@ -68,7 +68,15 @@
   "skills": {
     "Backend & Languages": ["Node.js", "TypeScript", "JavaScript", "SQL", "Python"],
     "Frameworks & Tools": ["NestJS", "Express.js", "GraphQL Federation", "REST APIs"],
-    "Data & Messaging": ["MongoDB", "MSSQL", "MySQL", "PostgreSQL", "Redis", "Apache Kafka", "RabbitMQ"],
+    "Data & Messaging": [
+      "MongoDB",
+      "MSSQL",
+      "MySQL",
+      "PostgreSQL",
+      "Redis",
+      "Apache Kafka",
+      "RabbitMQ"
+    ],
     "DevOps & Cloud": ["Kubernetes", "kubectl", "k9s", "Docker", "AWS EC2", "CI/CD"],
     "Observability": ["Winston", "Kibana", "Grafana", "Structured Logging"]
   },

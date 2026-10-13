@@ -8,6 +8,10 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://suvamadhikary.vercel.app',
   output: 'static',
+  build: {
+    // Inline CSS to avoid a render-blocking stylesheet request
+    inlineStylesheets: 'always',
+  },
   integrations: [mdx(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

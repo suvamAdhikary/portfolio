@@ -38,6 +38,7 @@ git log --oneline -3
 ```
 
 **Expected Result:**
+
 ```
 d3cefa8 docs: update ROADMAP with GitHub migration (2026-10-13)
 02a3d2b feat: add redacted resume PDF for web deployment
@@ -82,6 +83,7 @@ git push -u github main
 If push access is not available:
 
 1. **Download repository as archive:**
+
    ```bash
    cd /workspace
    tar -czf portfolio-backup.tar.gz --exclude=node_modules --exclude=.git .
@@ -92,10 +94,10 @@ If push access is not available:
    # Clone the empty GitHub repo
    git clone https://github.com/suvamAdhikary/portfolio.git
    cd portfolio
-   
+
    # Extract the archive (excluding tar)
    # Copy all files from the cloud agent
-   
+
    # Initialize git and push
    git add -A
    git commit -m "Initial commit: Complete Astro portfolio with real content"
@@ -117,6 +119,7 @@ git ls-remote github
 ```
 
 **Expected output should show:**
+
 - `main` branch at commit `d3cefa8` or later
 - All 7 commits preserved in history
 
@@ -151,15 +154,18 @@ git ls-remote github
 ## Troubleshooting
 
 ### "Authentication failed"
+
 - Ensure your GitHub token has `repo` scope
 - Or use SSH: `git remote set-url github git@github.com:suvamAdhikary/portfolio.git`
 
 ### "Repository not found"
+
 - Verify repository exists: https://github.com/suvamAdhikary/portfolio
 - Check repository name spelling
 - Ensure you have write access
 
 ### "Updates were rejected"
+
 - If the GitHub repo isn't empty: `git push -u github main --force` (only for initial push)
 
 ---
@@ -167,6 +173,7 @@ git ls-remote github
 ## Summary
 
 **What's Ready:**
+
 - ✅ Complete portfolio with 3 real case studies
 - ✅ All 4 employers in experience timeline
 - ✅ Redacted resume PDF
@@ -175,10 +182,12 @@ git ls-remote github
 - ✅ 7 commits on main branch with full history
 
 **What's Needed:**
+
 - ⏳ GitHub authentication to complete push
 - ⏳ Manual push command execution
 
 **Repository Details:**
+
 - **Branch:** `main`
 - **Latest Commit:** `d3cefa8`
 - **Total Commits:** 7

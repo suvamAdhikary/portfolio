@@ -1,15 +1,17 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-family-sans: 'Inter Variable', system-ui, -apple-system, sans-serif;
-  
+  --font-sans: 'Inter Variable', system-ui, -apple-system, sans-serif;
+  --font-mono:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
   --color-primary-50: oklch(0.98 0.02 250);
   --color-primary-100: oklch(0.95 0.04 250);
   --color-primary-200: oklch(0.88 0.08 250);
   --color-primary-300: oklch(0.78 0.12 250);
   --color-primary-400: oklch(0.66 0.16 250);
-  --color-primary-500: oklch(0.55 0.20 250);
-  --color-primary-600: oklch(0.45 0.20 250);
+  --color-primary-500: oklch(0.55 0.2 250);
+  --color-primary-600: oklch(0.45 0.2 250);
   --color-primary-700: oklch(0.38 0.16 250);
   --color-primary-800: oklch(0.32 0.12 250);
   --color-primary-900: oklch(0.27 0.08 250);
@@ -26,6 +28,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px;
 }
 
 body {
@@ -36,4 +39,24 @@ body {
   html {
     font-family: 'Inter Variable', sans-serif;
   }
+}
+
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dark .glassmorphism {
+  background: rgba(17, 24, 39, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.dark .glow {
+  box-shadow: 0 0 30px rgba(96, 165, 250, 0.4);
 }

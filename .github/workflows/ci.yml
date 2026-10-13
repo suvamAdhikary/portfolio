@@ -9,82 +9,83 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Type check
         run: npx astro check
-      
+
       - name: Lint
         run: npm run lint
-      
+
       - name: Build
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
   link-check:
     runs-on: ubuntu-latest
     needs: check
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build site
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Link check with lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose --no-progress './dist/**/*.html' --exclude-link-local --exclude 'mailto:*' --exclude 'https://linkedin.com/*' --exclude 'https://github.com/suvamAdhikary' --max-retries 3
+          # Exclusion patterns live in .lycheeignore (loopback, localhost, *.vercel.app previews, LinkedIn)
+          args: --verbose --no-progress --exclude-loopback --exclude-link-local --exclude-private --max-retries 3 --root-dir "${{ github.workspace }}/dist" './dist/**/*.html'
           fail: true
-  
+
   lighthouse:
     runs-on: ubuntu-latest
     needs: check
     if: github.event_name == 'pull_request'
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build site
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
         with:
