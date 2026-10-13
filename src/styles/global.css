@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-family-sans: 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --font-family-mono:
+  --font-sans: 'Inter Variable', system-ui, -apple-system, sans-serif;
+  --font-mono:
     'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
   --color-primary-50: oklch(0.98 0.02 250);
