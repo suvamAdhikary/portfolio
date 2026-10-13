@@ -108,6 +108,16 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 
 ---
 
+**Self-hosted Fonts & CI Fixes (2026-10-14)**
+
+- [x] Self-hosted Inter Variable via `@fontsource-variable/inter` (font-display: swap); removed Google Fonts links and preconnects; preloaded latin subset
+- [x] Tailwind v4 theme font tokens fixed (`--font-sans` / `--font-mono`) so utilities use 'Inter Variable'
+- [x] Inlined stylesheets (`build.inlineStylesheets: 'always'`) to remove render-blocking CSS
+- [x] Lighthouse CI a11y fixes: removed nested links in project cards (stretched-link pattern), aligned hero scroll-cue accessible name with visible text
+- [x] Lighthouse CI perf fixes: hero canvas uses ResizeObserver (no layout reads in the draw loop) and pauses off-screen; sticky nav defers initial geometry reads
+- [x] lychee link check excludes loopback, localhost, and `*.vercel.app` preview URLs via `.lycheeignore`
+- Local LHCI: performance 0.97, accessibility 1.0, best-practices 1.0, SEO 1.0 (no assertion errors; thresholds unchanged)
+
 ### 🚧 In Progress
 
 _Currently empty - no active development_
@@ -259,4 +269,4 @@ _Currently empty - no active development_
 - Move completed items from "Next" to "Done" with completion date
 - Update project URLs section as deployment progresses
 
-**Last Updated:** 2026-10-13
+**Last Updated:** 2026-10-14
