@@ -34,6 +34,10 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
   - Resilient APIs with NestJS
 - [x] Mermaid diagram slots in templates
 - [x] Experience timeline structure
+- [x] Curated projects section with featured and bootcamp projects (2026-10-13)
+  - Featured: workflow-engine-backend, visucode (live link), identity-reconciliation, logic-composer, workflow-engine-frontend
+  - Earlier work: Capdas-ECommerce, dineout_clone, Rhythm, MyGlamm-with-Backend, deliveroo-clone (labeled as 2021-23 bootcamp/team projects)
+  - Excluded portfolio_react and other non-production repos
 
 **SEO & Quality (2026-10-13)**
 - [x] Open Graph and Twitter Card meta tags

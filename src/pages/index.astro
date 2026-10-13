@@ -37,14 +37,78 @@ try {
   console.warn('Failed to fetch GitHub projects:', error);
 }
 
-// Separate bootcamp projects
-const bootcampNames = ['react', 'clone', 'imdb', 'netflix', 'amazon', 'masai', 'practice', 'assignment'];
-const bootcampProjects = githubProjects.filter((repo: any) => 
-  bootcampNames.some(name => repo.name.toLowerCase().includes(name))
-);
-const featuredProjects = githubProjects
-  .filter((repo: any) => !bootcampNames.some(name => repo.name.toLowerCase().includes(name)))
-  .slice(0, 6);
+// Curated project lists
+const featuredProjectNames = [
+  'workflow-engine-backend',
+  'visucode',
+  'identity-reconciliation',
+  'logic-composer',
+  'workflow-engine-frontend'
+];
+
+const bootcampProjectNames = [
+  'Capdas-ECommerce',
+  'dineout_clone',
+  'Rhythm',
+  'MyGlamm-with-Backend',
+  'deliveroo-clone'
+];
+
+// Manual descriptions for projects (used as fallback if API fails or description is missing)
+const projectDescriptions: Record<string, string> = {
+  'workflow-engine-backend': 'Production-ready NestJS backend for workflow automation platform. Features JWT auth, API keys, workflow CRUD, webhook execution, Redis caching, and comprehensive API documentation.',
+  'visucode': '🎓 Interactive DSA learning platform — visual lessons, step-by-step dry runs, built-in code editor. Learn algorithms by seeing, not just reading.',
+  'identity-reconciliation': 'REST API for linking customer contacts across emails and phone numbers using TypeScript and SQL',
+  'logic-composer': 'A Visual Condition Builder built with React and TypeScript that allows users to construct nested logical expressions using groups and rules. This project focuses on clean state modeling, immutable updates, recursive rendering, and correctness.',
+  'workflow-engine-frontend': 'React frontend for workflow automation platform. Built with Vite, TypeScript, and Tailwind CSS. Features workflow builder, execution history, and real-time monitoring.',
+  'Capdas-ECommerce': 'Sustainable clothing e-commerce (mobile version) built with MERN stack. First team project with design collaboration.',
+  'dineout_clone': 'Restaurant booking web app with filtering, date/time selection, mobile OTP login, and booking confirmations.',
+  'Rhythm': 'MERN stack music platform where users can discover albums by filtering and searching, and artists can showcase their work.',
+  'MyGlamm-with-Backend': 'Luxury beauty products e-commerce with product details, cart, and checkout functionality.',
+  'deliveroo-clone': 'Food delivery app with Sanity.io backend, multiplatform support.'
+};
+
+// Build featured projects list in specified order
+const featuredProjects = featuredProjectNames
+  .map(name => {
+    const repo = githubProjects.find((r: any) => r.name === name);
+    if (repo) {
+      // Use API data but ensure description is set
+      return {
+        ...repo,
+        description: repo.description || projectDescriptions[name] || ''
+      };
+    }
+    // Fallback if API failed or repo not found
+    return {
+      name,
+      html_url: `https://github.com/suvamAdhikary/${name}`,
+      description: projectDescriptions[name] || '',
+      language: name.includes('backend') ? 'TypeScript' : name === 'visucode' ? 'TypeScript' : 'TypeScript',
+      stargazers_count: 0,
+      forks_count: 0
+    };
+  });
+
+// Build bootcamp projects list
+const bootcampProjects = bootcampProjectNames
+  .map(name => {
+    const repo = githubProjects.find((r: any) => r.name === name);
+    if (repo) {
+      return {
+        ...repo,
+        description: repo.description || projectDescriptions[name] || ''
+      };
+    }
+    return {
+      name,
+      html_url: `https://github.com/suvamAdhikary/${name}`,
+      description: projectDescriptions[name] || '',
+      language: 'JavaScript',
+      stargazers_count: 0,
+      forks_count: 0
+    };
+  });
 ---
 
 <BaseLayout 
@@ -210,12 +274,30 @@ const featuredProjects = githubProjects
                 rel="noopener noreferrer"
                 class="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 transition-all hover:shadow-lg"
               >
-                <h3 class="text-lg font-bold mb-2">
-                  {project.name}
-                </h3>
+                <div class="flex items-start justify-between mb-2">
+                  <h3 class="text-lg font-bold flex-1">
+                    {project.name}
+                  </h3>
+                  {project.name === 'visucode' && (
+                    <a 
+                      href="https://visucode.vercel.app" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      class="ml-2 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded font-medium hover:bg-green-200 dark:hover:bg-green-900/50"
+                      onclick="event.stopPropagation()"
+                    >
+                      Live
+                    </a>
+                  )}
+                </div>
                 {project.description && (
                   <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
                     {project.description}
+                  </p>
+                )}
+                {project.name === 'visucode' && (
+                  <p class="text-xs text-gray-500 dark:text-gray-500 mb-4 italic">
+                    29 test files • TypeScript/Nx/Next.js
                   </p>
                 )}
                 <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
@@ -245,19 +327,24 @@ const featuredProjects = githubProjects
           <>
             <h3 class="text-2xl font-bold mb-6">Earlier Work</h3>
             <p class="text-gray-600 dark:text-gray-400 text-sm mb-6">
-              Practice projects and clones from my learning journey at Masai School
+              Bootcamp and team projects from 2021-23 learning journey at Masai School
             </p>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {bootcampProjects.slice(0, 8).map((project: any) => (
+              {bootcampProjects.map((project: any) => (
                 <a 
                   href={project.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 transition-all text-sm"
                 >
-                  <h4 class="font-semibold truncate">
+                  <h4 class="font-semibold truncate mb-1">
                     {project.name}
                   </h4>
+                  {project.description && (
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+                      {project.description}
+                    </p>
+                  )}
                   {project.language && (
                     <span class="text-xs text-gray-500 dark:text-gray-500">
                       {project.language}
