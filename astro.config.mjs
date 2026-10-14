@@ -17,8 +17,14 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
+    syntaxHighlight: {
+      type: 'shiki',
+      // Mermaid fences are rendered client-side as diagrams
+      excludeLangs: ['mermaid'],
+    },
     shikiConfig: {
-      theme: 'github-dark',
+      themes: { light: 'github-light', dark: 'github-dark' },
+      defaultColor: false,
     },
   },
 });

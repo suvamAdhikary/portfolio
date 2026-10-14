@@ -9,7 +9,6 @@ import Footer from '../components/Footer.astro';
 import { getCollection } from 'astro:content';
 import profile from '../../data/profile.json';
 
-import '../styles/global.css';
 
 const caseStudies = (await getCollection('case-studies'))
   .filter((cs) => !cs.data.draft)

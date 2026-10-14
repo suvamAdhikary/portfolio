@@ -124,6 +124,14 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] No-flash head script: stored choice wins, otherwise prefers-color-scheme; no longer persists the OS default as a choice
 - [x] Theme toggle wired by data attribute (fixes duplicate ids across headers), icons switch via CSS, `aria-pressed` state, follows OS changes until user chooses
 
+**Case Study Pages Redesign (2026-10-14)**
+
+- [x] Root cause: `global.css` (Tailwind) was only imported by `index.astro`, so case study pages shipped with no Tailwind CSS; also `prose` classes had no plugin. Moved the import into `BaseLayout` and added `@plugin '@tailwindcss/typography'`
+- [x] Redesigned `/case-studies/[slug]`: glass header card (title, summary, date, reading time, stack tags), glass prose card, sticky "On this page" TOC (desktop), prev/next navigation
+- [x] Shiki dual theme (github-light / github-dark) switched by the `.dark` class
+- [x] Mermaid diagrams rendered client-side (lazy-loaded, light/dark themed) instead of raw code
+- [x] `og:type` = article and TechArticle JSON-LD on case study pages; content unchanged
+
 ### 🚧 In Progress
 
 _Currently empty - no active development_

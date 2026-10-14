@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 /* Class-based dark mode: `dark:` utilities follow the .dark class on <html>
    (set by the no-flash script in BaseLayout), not only the OS media query. */
@@ -63,4 +64,16 @@ body {
 
 .dark .glow {
   box-shadow: 0 0 30px rgba(96, 165, 250, 0.4);
+}
+
+/* Shiki dual theme: light by default, dark tokens when .dark is on <html> */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+.dark .astro-code,
+.dark .astro-code span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
 }

@@ -4,15 +4,25 @@ interface Props {
   description: string;
   ogImage?: string;
   canonicalURL?: string;
+  ogType?: 'website' | 'article';
 }
 
-const { title, description, ogImage = '/og-image.png', canonicalURL } = Astro.props;
+const {
+  title,
+  description,
+  ogImage = '/og-image.png',
+  canonicalURL,
+  ogType = 'website',
+} = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvamadhikary.vercel.app';
 const pageUrl = canonicalURL || new URL(Astro.url.pathname, siteUrl).toString();
 const fullOgImage = new URL(ogImage, siteUrl).toString();
 
 import '@fontsource-variable/inter';
+// Global Tailwind styles for every page (previously only imported by index.astro,
+// so case study pages shipped with no Tailwind CSS at all)
+import '../styles/global.css';
 import interLatinWoff2 from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import profile from '../../data/profile.json';
 ---
@@ -28,7 +38,7 @@ import profile from '../../data/profile.json';
     <link rel="canonical" href={pageUrl} />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={pageUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -80,6 +90,7 @@ import profile from '../../data/profile.json';
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
       })();
     </script>
+    <slot name="head" />
   </head>
   <body class="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
     <slot />
