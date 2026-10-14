@@ -1,4 +1,4 @@
----
+﻿---
 import { getCollection, type CollectionEntry, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import StickyNav from '../../components/StickyNav.astro';
@@ -6,151 +6,318 @@ import CommandPalette from '../../components/CommandPalette.astro';
 import Footer from '../../components/Footer.astro';
 
 export async function getStaticPaths() {
-  const caseStudies = await getCollection('case-studies');
-  return caseStudies
+  const caseStudies = (await getCollection('case-studies'))
     .filter((cs) => !cs.data.draft)
-    .map((study) => ({
-      params: { slug: study.id },
-      props: { study },
-    }));
+    .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+  return caseStudies.map((study, idx) => ({
+    params: { slug: study.id },
+    props: {
+      study,
+      prev: idx > 0 ? caseStudies[idx - 1] : undefined,
+      next: idx < caseStudies.length - 1 ? caseStudies[idx + 1] : undefined,
+    },
+  }));
 }
 
 interface Props {
   study: CollectionEntry<'case-studies'>;
+  prev?: CollectionEntry<'case-studies'>;
+  next?: CollectionEntry<'case-studies'>;
 }
 
-const { study } = Astro.props;
-const { Content } = await render(study);
+const { study, prev, next } = Astro.props;
+const { Content, headings } = await render(study);
+const toc = headings.filter((h) => h.depth === 2);
 
 const formattedDate = study.data.publishDate.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
+  timeZone: 'UTC',
 });
+
+// Derived from the article body (not a content claim)
+const wordCount = (study.body ?? '').split(/\s+/).filter(Boolean).length;
+const readingMinutes = Math.max(1, Math.round(wordCount / 220));
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvamadhikary.vercel.app';
+const pageUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const articleJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: study.data.title,
+  description: study.data.description,
+  datePublished: study.data.publishDate.toISOString(),
+  keywords: study.data.tags.join(', '),
+  url: pageUrl,
+  mainEntityOfPage: pageUrl,
+  author: { '@type': 'Person', name: 'Suvam Adhikary', url: siteUrl },
+};
 ---
 
-<BaseLayout title={`${study.data.title} | Suvam Adhikary`} description={study.data.description}>
+<BaseLayout
+  title={`${study.data.title} | Suvam Adhikary`}
+  description={study.data.description}
+  ogType="article"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />
   <StickyNav />
   <CommandPalette />
 
-  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
-    <article class="max-w-4xl mx-auto">
-      <header class="mb-16">
+  <main class="relative overflow-hidden">
+    <!-- Ambient background -->
+    <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 h-[36rem] -z-10">
+      <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[48rem] h-[48rem] rounded-full bg-primary-500/10 dark:bg-primary-500/15 blur-3xl"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(100,116,139,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(100,116,139,0.08)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent)]"></div>
+    </div>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+      <nav aria-label="Breadcrumb" class="max-w-6xl mx-auto mb-8">
         <a
           href="/#case-studies"
-          class="group inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-8 transition-colors"
+          class="group inline-flex items-center gap-2 text-sm font-medium text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
         >
           <svg
             class="w-4 h-4 transition-transform group-hover:-translate-x-1"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
               d="M15 19l-7-7 7-7"
-            />
+            ></path>
           </svg>
-          Back to all case studies
+          All case studies
         </a>
+      </nav>
 
-        <div class="inline-block mb-6">
-          <span class="text-sm font-mono text-primary-600 dark:text-primary-400 tracking-wider uppercase">
-            Case Study
-          </span>
-        </div>
+      <!-- Header card -->
+      <header class="max-w-6xl mx-auto mb-12 rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl shadow-xl shadow-primary-500/5 p-6 sm:p-10">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/30 border border-primary-200/70 dark:border-primary-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
+          Case Study
+        </span>
 
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+        <h1 class="mt-5 text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white text-balance">
           {study.data.title}
         </h1>
 
-        <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+        <p class="mt-5 text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl">
           {study.data.description}
         </p>
 
-        <div class="flex flex-wrap items-center gap-4 text-sm">
+        <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600 dark:text-gray-400">
           <time
             datetime={study.data.publishDate.toISOString()}
-            class="flex items-center gap-2 text-gray-600 dark:text-gray-400"
+            class="inline-flex items-center gap-2"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
+              ></path>
             </svg>
             {formattedDate}
           </time>
-          <span class="text-gray-400 dark:text-gray-600">•</span>
-          <div class="flex flex-wrap gap-2">
-            {study.data.tags.map((tag) => (
-              <span class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-mono">
-                {tag}
-              </span>
-            ))}
-          </div>
+          <span class="inline-flex items-center gap-2">
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            {readingMinutes} min read
+          </span>
         </div>
+
+        <ul class="mt-6 flex flex-wrap gap-2" aria-label="Stack and topics">
+          {study.data.tags.map((tag) => (
+            <li class="px-3 py-1.5 rounded-lg text-xs font-mono text-gray-700 dark:text-gray-200 bg-gray-100/80 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+              {tag}
+            </li>
+          ))}
+        </ul>
       </header>
 
-      <div
-        class="prose prose-lg dark:prose-invert max-w-none
-        prose-headings:font-bold prose-headings:tracking-tight
-        prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:border-b prose-h2:border-gray-200 dark:prose-h2:border-gray-800 prose-h2:pb-3
-        prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-4
-        prose-h4:text-xl prose-h4:mt-8 prose-h4:mb-3
-        prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-lg
-        prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-a:font-medium
-        prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
-        prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
-        prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-xl prose-pre:shadow-lg
-        prose-ul:text-gray-700 dark:prose-ul:text-gray-300
-        prose-ol:text-gray-700 dark:prose-ol:text-gray-300
-        prose-li:marker:text-primary-600 dark:prose-li:marker:text-primary-400 prose-li:my-2
-        prose-blockquote:border-l-4 prose-blockquote:border-primary-500 prose-blockquote:bg-primary-50 dark:prose-blockquote:bg-primary-900/10 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
-        prose-hr:border-gray-200 dark:prose-hr:border-gray-800 prose-hr:my-12
-        prose-img:rounded-2xl prose-img:shadow-2xl prose-img:border prose-img:border-gray-200 dark:prose-img:border-gray-800"
-      >
-        <Content />
+      <div class="max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12">
+        <!-- Article body -->
+        <article
+          class="prose prose-gray dark:prose-invert max-w-none sm:prose-lg
+          prose-headings:scroll-mt-28 prose-headings:tracking-tight
+          prose-h2:mt-14 prose-h2:pb-3 prose-h2:border-b prose-h2:border-gray-200 dark:prose-h2:border-white/10
+          prose-a:text-primary-700 dark:prose-a:text-primary-300 prose-a:font-medium prose-a:underline-offset-4
+          prose-strong:text-gray-900 dark:prose-strong:text-white
+          prose-li:marker:text-primary-500
+          prose-code:before:content-none prose-code:after:content-none prose-code:font-mono prose-code:text-[0.875em] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:bg-gray-100 dark:prose-code:bg-white/10 prose-code:text-primary-700 dark:prose-code:text-primary-300
+          prose-pre:rounded-2xl prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/10 prose-pre:shadow-sm prose-pre:text-sm
+          prose-blockquote:border-l-primary-500 prose-blockquote:bg-primary-50/60 dark:prose-blockquote:bg-primary-900/10 prose-blockquote:rounded-r-xl prose-blockquote:py-1
+          prose-table:text-sm prose-th:text-left
+          prose-img:rounded-2xl prose-img:border prose-img:border-gray-200 dark:prose-img:border-white/10
+          prose-hr:border-gray-200 dark:prose-hr:border-white/10
+          rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-6 sm:p-10"
+        >
+          <Content />
+        </article>
+
+        <!-- Table of contents -->
+        {toc.length > 1 && (
+          <aside class="hidden lg:block" aria-label="On this page">
+            <div class="sticky top-28 rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5">
+              <p class="text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+                On this page
+              </p>
+              <ol class="space-y-2 text-sm">
+                {toc.map((h) => (
+                  <li>
+                    <a
+                      href={`#${h.slug}`}
+                      class="block text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    >
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </aside>
+        )}
       </div>
 
-      <div class="mt-20 pt-8 border-t border-gray-200 dark:border-gray-800">
-        <a
-          href="/#case-studies"
-          class="group inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-xl font-medium transition-all hover:shadow-lg hover:-translate-y-0.5"
-        >
-          <svg
-            class="w-4 h-4 transition-transform group-hover:-translate-x-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <!-- Prev / next -->
+      <nav aria-label="More case studies" class="max-w-6xl mx-auto mt-16 grid gap-4 sm:grid-cols-2">
+        {prev ? (
+          <a
+            href={`/case-studies/${prev.id}/`}
+            class="group rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-6 transition-all hover:-translate-y-0.5 hover:border-primary-500/50 hover:shadow-lg"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back to all case studies
-        </a>
-      </div>
-    </article>
+            <span class="text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              ← Previous
+            </span>
+            <span class="mt-2 block font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-300">
+              {prev.data.title}
+            </span>
+          </a>
+        ) : (
+          <span class="hidden sm:block" />
+        )}
+        {next ? (
+          <a
+            href={`/case-studies/${next.id}/`}
+            class="group rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-6 text-right transition-all hover:-translate-y-0.5 hover:border-primary-500/50 hover:shadow-lg"
+          >
+            <span class="text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Next →
+            </span>
+            <span class="mt-2 block font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-300">
+              {next.data.title}
+            </span>
+          </a>
+        ) : (
+          <a
+            href="/#case-studies"
+            class="group rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-6 text-right transition-all hover:-translate-y-0.5 hover:border-primary-500/50 hover:shadow-lg"
+          >
+            <span class="text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Back to
+            </span>
+            <span class="mt-2 block font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-300">
+              All case studies
+            </span>
+          </a>
+        )}
+      </nav>
+    </div>
   </main>
 
   <Footer />
 </BaseLayout>
 
-<style is:global>
-  /* Mermaid diagram dark mode support */
-  :root.dark .mermaid {
-    background-color: transparent;
-  }
+<script>
+  // Render ```mermaid fences (excluded from Shiki) as diagrams, themed to match light/dark.
+  const blocks = Array.from(document.querySelectorAll<HTMLElement>('pre > code.language-mermaid'));
 
-  :root.dark .mermaid svg {
-    filter: invert(0.9) hue-rotate(180deg);
+  if (blocks.length > 0) {
+    const containers = blocks.map((code) => {
+      const pre = code.parentElement as HTMLElement;
+      const figure = document.createElement('figure');
+      figure.className = 'mermaid-diagram not-prose';
+      figure.dataset.source = code.textContent ?? '';
+      figure.setAttribute('role', 'img');
+      figure.setAttribute('aria-label', 'Architecture diagram');
+      pre.replaceWith(figure);
+      return figure;
+    });
+
+    const renderAll = async () => {
+      const { default: mermaid } = await import('mermaid');
+      const isDark = document.documentElement.classList.contains('dark');
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: isDark ? 'dark' : 'default',
+        securityLevel: 'strict',
+      });
+      for (const [i, el] of containers.entries()) {
+        try {
+          const { svg } = await mermaid.render(
+            `mermaid-${i}-${Date.now()}`,
+            el.dataset.source ?? ''
+          );
+          el.innerHTML = svg;
+        } catch {
+          el.innerHTML = '';
+          const fallback = document.createElement('pre');
+          fallback.textContent = el.dataset.source ?? '';
+          el.appendChild(fallback);
+        }
+      }
+    };
+
+    renderAll();
+    new MutationObserver(() => renderAll()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+</script>
+
+<style is:global>
+  .mermaid-diagram {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    overflow-x: auto;
+    border-radius: 1rem;
+    border: 1px solid rgb(229 231 235);
+    background: rgb(255 255 255 / 0.7);
+    text-align: center;
+  }
+  .dark .mermaid-diagram {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(17 24 39 / 0.5);
+  }
+  .mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
   }
 </style>
