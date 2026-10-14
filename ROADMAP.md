@@ -118,6 +118,12 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] lychee link check excludes loopback, localhost, and `*.vercel.app` preview URLs via `.lycheeignore`
 - Local LHCI: performance 0.97, accessibility 1.0, best-practices 1.0, SEO 1.0 (no assertion errors; thresholds unchanged)
 
+**Dark Mode Fix (2026-10-14)**
+
+- [x] Tailwind v4 class-based dark variant (`@custom-variant dark (&:where(.dark, .dark *))`); previously `dark:` utilities only followed the OS media query, so the toggle had no visible effect
+- [x] No-flash head script: stored choice wins, otherwise prefers-color-scheme; no longer persists the OS default as a choice
+- [x] Theme toggle wired by data attribute (fixes duplicate ids across headers), icons switch via CSS, `aria-pressed` state, follows OS changes until user chooses
+
 ### 🚧 In Progress
 
 _Currently empty - no active development_
