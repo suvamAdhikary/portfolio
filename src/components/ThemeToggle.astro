@@ -1,16 +1,20 @@
 ---
-const isDark = false; // Server-side placeholder
+// Theme toggle. Rendered in more than one header, so it is wired up by
+// data attribute (not id). Icons switch via the `dark:` variant, so the
+// correct icon shows before JS runs (no flash).
 ---
 
 <button
-  id="theme-toggle"
   type="button"
-  aria-label="Toggle dark mode"
+  data-theme-toggle
+  aria-label="Dark mode"
+  aria-pressed="false"
+  title="Toggle dark mode"
   class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
 >
   <svg
-    id="theme-toggle-dark-icon"
-    class="w-5 h-5 hidden"
+    class="w-5 h-5 block dark:hidden"
+    aria-hidden="true"
     fill="currentColor"
     viewBox="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
@@ -18,8 +22,8 @@ const isDark = false; // Server-side placeholder
     <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
   </svg>
   <svg
-    id="theme-toggle-light-icon"
-    class="w-5 h-5 hidden"
+    class="w-5 h-5 hidden dark:block"
+    aria-hidden="true"
     fill="currentColor"
     viewBox="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
@@ -33,28 +37,43 @@ const isDark = false; // Server-side placeholder
 </button>
 
 <script>
-  const themeToggle = document.getElementById('theme-toggle');
-  const darkIcon = document.getElementById('theme-toggle-dark-icon');
-  const lightIcon = document.getElementById('theme-toggle-light-icon');
+  const root = document.documentElement;
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+  const toggles = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
 
-  function updateIcons(isDark: boolean) {
-    if (darkIcon && lightIcon) {
-      if (isDark) {
-        darkIcon.classList.remove('hidden');
-        lightIcon.classList.add('hidden');
-      } else {
-        darkIcon.classList.add('hidden');
-        lightIcon.classList.remove('hidden');
+  const syncPressed = () => {
+    const isDark = root.classList.contains('dark');
+    toggles.forEach((btn) => btn.setAttribute('aria-pressed', String(isDark)));
+  };
+
+  const applyTheme = (isDark: boolean) => {
+    root.classList.toggle('dark', isDark);
+    root.style.colorScheme = isDark ? 'dark' : 'light';
+    syncPressed();
+  };
+
+  toggles.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const isDark = !root.classList.contains('dark');
+      applyTheme(isDark);
+      try {
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      } catch {
+        // Storage unavailable (private mode); theme still applies for this page.
       }
+    })
+  );
+
+  // Follow OS changes until the user makes an explicit choice
+  media.addEventListener('change', (e) => {
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem('theme');
+    } catch {
+      stored = null;
     }
-  }
-
-  const currentTheme = localStorage.getItem('theme') || 'light';
-  updateIcons(currentTheme === 'dark');
-
-  themeToggle?.addEventListener('click', () => {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    updateIcons(isDark);
+    if (stored !== 'dark' && stored !== 'light') applyTheme(e.matches);
   });
+
+  syncPressed();
 </script>
