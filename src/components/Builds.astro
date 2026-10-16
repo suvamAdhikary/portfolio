@@ -1,0 +1,93 @@
+---
+import { Image } from 'astro:assets';
+import ScrollReveal from './ScrollReveal.astro';
+import builds from '../../data/builds.json';
+
+// Screenshots live in src/assets/builds/ and are referenced by filename in data/builds.json.
+const images = import.meta.glob<{ default: ImageMetadata }>('../assets/builds/*.{webp,png,jpg}', {
+  eager: true,
+});
+const getImage = (name: string) => images[`../assets/builds/${name}`]?.default;
+---
+
+<section
+  id="builds"
+  class="relative py-32 bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900/50"
+>
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <ScrollReveal>
+      <div class="inline-block mb-4">
+        <span class="text-sm font-mono text-primary-600 dark:text-primary-400 tracking-wider uppercase">
+          Builds
+        </span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">Games &amp; Apps I've Shipped</h2>
+      <p class="text-xl text-gray-600 dark:text-gray-400 mb-16 max-w-3xl">
+        Live, playable builds beyond backend work. Open any of them in your browser.
+      </p>
+    </ScrollReveal>
+
+    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0">
+      {builds.map((build, idx) => {
+        const img = getImage(build.image);
+        return (
+          <li>
+            <ScrollReveal delay={`${idx * 0.08}s`}>
+              <article class="group relative h-full flex flex-col overflow-hidden rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl shadow-lg shadow-primary-500/5 transition-all hover:-translate-y-1 hover:border-primary-500/50 hover:shadow-xl focus-within:border-primary-500/60">
+                {img && (
+                  <div class="aspect-[16/10] overflow-hidden border-b border-gray-200/80 dark:border-white/10 bg-gray-100 dark:bg-gray-800">
+                    <Image
+                      src={img}
+                      alt={build.imageAlt}
+                      width={640}
+                      height={400}
+                      loading="lazy"
+                      class="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                  </div>
+                )}
+                <div class="flex flex-1 flex-col p-6">
+                  <h3 class="text-xl font-bold">
+                    <a
+                      href={build.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="after:absolute after:inset-0 after:content-[''] hover:text-primary-700 dark:hover:text-primary-300 focus:outline-none focus-visible:underline"
+                    >
+                      {build.title}
+                      <span class="sr-only"> (opens live site in a new tab)</span>
+                    </a>
+                  </h3>
+                  <p class="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                    {build.description}
+                  </p>
+                  <ul class="mt-4 flex flex-wrap gap-2" aria-label={`${build.title} stack`}>
+                    {build.stack.map((tag) => (
+                      <li class="px-2.5 py-1 rounded-lg text-xs font-mono text-gray-700 dark:text-gray-200 bg-gray-100/80 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                  <span
+                    class="mt-auto pt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary-700 dark:text-primary-300"
+                    aria-hidden="true"
+                  >
+                    Play live
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                      />
+                    </svg>
+                  </span>
+                </div>
+              </article>
+            </ScrollReveal>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>

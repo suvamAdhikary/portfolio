@@ -132,6 +132,13 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Mermaid diagrams rendered client-side (lazy-loaded, light/dark themed) instead of raw code
 - [x] `og:type` = article and TechArticle JSON-LD on case study pages; content unchanged
 
+**Builds Section (2026-10-16)**
+
+- [x] New "Builds" section below Projects with glass cards for live deployed builds: Lemonade Day, DevArcade, Framekar (live URLs verified 200 on 2026-10-16)
+- [x] Data-driven: add an entry to `data/builds.json` plus a 1280x800 WebP in `src/assets/builds/` to add a build; Astro `<Image>` with alt text
+- [x] Added to the sticky nav and command palette; external links use `rel="noopener noreferrer"`
+- Source repos are private, so cards link to the live site only (no repo links); stack tags come from each repo's README/package.json
+
 ### 🚧 In Progress
 
 _Currently empty - no active development_
