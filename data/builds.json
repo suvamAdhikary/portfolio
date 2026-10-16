@@ -1,0 +1,53 @@
+[
+  {
+    "id": "lemonade-day",
+    "title": "Lemonade Day",
+    "description": "Run a nimbu pani stand on a Bengaluru street: buy at the mandi, set the recipe and price, ride the weather and festivals, and grow a career. A free browser game.",
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "No dependencies",
+      "Node tests",
+      "Headless Chrome tests"
+    ],
+    "liveUrl": "https://lemonade-day-cyan.vercel.app/",
+    "image": "lemonade-day.webp",
+    "imageAlt": "Lemonade Day season picker with a hand-drawn nimbu pani stand in Bengaluru"
+  },
+  {
+    "id": "devarcade",
+    "title": "DevArcade",
+    "description": "Learn DSA and system design by playing small mobile-first games: Packet City (system design tycoon) and Dungeon of Algorithms (DSA roguelike).",
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "PWA",
+      "Offline-first",
+      "Node tests",
+      "Headless Chrome tests"
+    ],
+    "liveUrl": "https://devarcade-sand.vercel.app/",
+    "image": "devarcade.webp",
+    "imageAlt": "DevArcade skill map showing Packet City and Dungeon of Algorithms"
+  },
+  {
+    "id": "framekar",
+    "title": "Framekar",
+    "description": "Level up your Reels. A mobile-first web app that teaches short-form video skills through game missions and ends each one with a postable Reel or Short.",
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript (ES modules)",
+      "Web Audio",
+      "MediaRecorder",
+      "PWA",
+      "Playwright",
+      "axe-core"
+    ],
+    "liveUrl": "https://framekar.vercel.app/",
+    "image": "framekar.webp",
+    "imageAlt": "Framekar mission screen: Beat Cut Reel, Season 1"
+  }
+]
