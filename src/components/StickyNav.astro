@@ -1,86 +1,130 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+
+// Single source of truth for header + mobile menu links.
+const links = [
+  { label: 'About', section: 'about' },
+  { label: 'Experience', section: 'experience' },
+  { label: 'Case Studies', section: 'case-studies' },
+  { label: 'Projects', section: 'projects' },
+  { label: 'Builds', section: 'builds' },
+  { label: 'Contact', section: 'contact' },
+];
 ---
 
-<header id="main-header" class="fixed top-0 z-40 w-full transition-all duration-300">
+<header
+  id="main-header"
+  class="fixed top-0 z-40 w-full pt-[env(safe-area-inset-top)] transition-transform duration-300 motion-reduce:transition-none"
+>
   <div
     class="absolute inset-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 opacity-0 transition-opacity"
     id="header-bg"
   ></div>
 
-  <nav class="relative container mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex h-16 items-center justify-between">
-      <a href="/" class="group relative text-xl font-bold transition-colors z-10">
-        <span class="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+  <nav
+    class="relative container mx-auto px-[max(1rem,env(safe-area-inset-left))] sm:px-6 lg:px-8"
+    aria-label="Primary"
+  >
+    <div class="flex h-16 items-center justify-between gap-2">
+      <a
+        href="/"
+        class="group relative inline-flex min-h-11 min-w-11 items-center text-xl font-bold transition-colors z-10 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+      >
+        <span class="sr-only">Suvam Adhikary, home</span>
+        <span aria-hidden="true" class="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
           SA
         </span>
-        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-600 to-primary-500 transition-all group-hover:w-full"></span>
       </a>
 
       <div class="flex items-center gap-1 sm:gap-2">
-        <a
-          href="/#about"
-          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden md:inline-block"
-          data-section="about"
-        >
-          About
-        </a>
-        <a
-          href="/#experience"
-          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden md:inline-block"
-          data-section="experience"
-        >
-          Experience
-        </a>
-        <a
-          href="/#case-studies"
-          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden lg:inline-block"
-          data-section="case-studies"
-        >
-          Case Studies
-        </a>
-        <a
-          href="/#projects"
-          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden lg:inline-block"
-          data-section="projects"
-        >
-          Projects
-        </a>
-        <a
-          href="/#builds"
-          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden lg:inline-block"
-          data-section="builds"
-        >
-          Builds
-        </a>
-        <a
-          href="/#contact"
-          class="nav-link px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hidden sm:inline-block"
-          data-section="contact"
-        >
-          Contact
-        </a>
+        {links.map((link) => (
+          <a
+            href={`/#${link.section}`}
+            class="nav-link hidden lg:inline-flex min-h-11 items-center px-3 text-sm font-medium rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+            data-section={link.section}
+          >
+            {link.label}
+          </a>
+        ))}
 
         <button
           id="command-trigger"
-          class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700"
-          aria-label="Open command palette"
+          type="button"
+          class="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 px-3 text-sm font-medium rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+          aria-label="Search sections (Ctrl+K)"
+          aria-haspopup="dialog"
+          aria-controls="command-palette"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
+            ></path>
           </svg>
-          <kbd class="hidden sm:inline-flex items-center gap-1 text-xs font-mono">
-            <span class="text-xs">⌘K</span>
+          <kbd class="hidden lg:inline-flex items-center text-xs font-mono" aria-hidden="true">
+            ⌘K
           </kbd>
         </button>
 
         <ThemeToggle />
+
+        <button
+          id="mobile-menu-button"
+          type="button"
+          class="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              data-icon="open"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+            <path
+              data-icon="close"
+              class="hidden"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
       </div>
+    </div>
+
+    <div id="mobile-menu" class="lg:hidden hidden pb-4">
+      <ul class="grid grid-cols-2 gap-2 rounded-2xl border border-gray-200 dark:border-white/10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-2 shadow-xl">
+        {links.map((link) => (
+          <li>
+            <a
+              href={`/#${link.section}`}
+              class="nav-link mobile-nav-link flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+              data-section={link.section}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </nav>
 </header>
@@ -88,14 +132,64 @@ import ThemeToggle from './ThemeToggle.astro';
 <script>
   const header = document.getElementById('main-header');
   const headerBg = document.getElementById('header-bg');
-  const navLinks = document.querySelectorAll('.nav-link');
+  const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
+  const menuButton = document.getElementById('mobile-menu-button');
+  const menu = document.getElementById('mobile-menu');
+  const isHome = window.location.pathname === '/';
+
+  // On the home page, use in-page hashes so the URL updates without a reload.
+  if (isHome) {
+    navLinks.forEach((link) => {
+      link.setAttribute('href', `#${link.dataset.section}`);
+    });
+  }
 
   let lastScrollY = 0;
+  let menuOpen = false;
+  // After an in-page jump (nav link, palette, back/forward) keep the header visible
+  // until the user scrolls by hand, so navigation is always one tap away.
+  let keepHeader = false;
+  window.addEventListener('hashchange', () => (keepHeader = true));
+  window.addEventListener('popstate', () => (keepHeader = true));
+  document.addEventListener('click', (e) => {
+    const a = (e.target as HTMLElement).closest?.('a[href*="#"]');
+    if (a) keepHeader = true;
+  });
+  ['wheel', 'touchmove'].forEach((type) =>
+    window.addEventListener(type, () => (keepHeader = false), { passive: true })
+  );
+
+  const setMenu = (open: boolean) => {
+    menuOpen = open;
+    menu?.classList.toggle('hidden', !open);
+    menuButton?.setAttribute('aria-expanded', String(open));
+    menuButton?.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    menuButton?.querySelector('[data-icon="open"]')?.classList.toggle('hidden', open);
+    menuButton?.querySelector('[data-icon="close"]')?.classList.toggle('hidden', !open);
+    if (open) {
+      headerBg?.classList.replace('opacity-0', 'opacity-100');
+      header?.classList.remove('-translate-y-full');
+    }
+  };
+
+  menuButton?.addEventListener('click', () => setMenu(!menuOpen));
+  document
+    .querySelectorAll('.mobile-nav-link')
+    .forEach((link) => link.addEventListener('click', () => setMenu(false)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuOpen) {
+      setMenu(false);
+      menuButton?.focus();
+    }
+  });
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+    if (e.matches) setMenu(false);
+  });
 
   const updateHeader = () => {
     const scrollY = window.scrollY;
 
-    if (scrollY > 100) {
+    if (scrollY > 100 || menuOpen) {
       headerBg?.classList.remove('opacity-0');
       headerBg?.classList.add('opacity-100');
     } else {
@@ -103,52 +197,52 @@ import ThemeToggle from './ThemeToggle.astro';
       headerBg?.classList.add('opacity-0');
     }
 
-    if (scrollY > lastScrollY && scrollY > 200) {
+    // Hide on scroll down, show on scroll up (never while the menu or a focused control is inside)
+    const focusInHeader = header?.contains(document.activeElement);
+    if (scrollY > lastScrollY && scrollY > 200 && !menuOpen && !focusInHeader && !keepHeader) {
       header?.classList.add('-translate-y-full');
-    } else {
+    } else if (scrollY < lastScrollY || scrollY <= 200) {
       header?.classList.remove('-translate-y-full');
     }
 
     lastScrollY = scrollY;
   };
 
+  const sections = Array.from(new Set(Array.from(navLinks).map((l) => l.dataset.section)))
+    .map((id) => (id ? document.getElementById(id) : null))
+    .filter(Boolean) as HTMLElement[];
+
+  const setActive = (activeSection: string) => {
+    navLinks.forEach((link) => {
+      const active = link.dataset.section === activeSection;
+      link.classList.toggle('text-primary-700', active);
+      link.classList.toggle('dark:text-primary-300', active);
+      link.classList.toggle('bg-primary-50', active);
+      link.classList.toggle('dark:bg-primary-900/20', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+
   const updateActiveSection = () => {
-    const sections = Array.from(navLinks)
-      .map((link) => {
-        const section = (link as HTMLAnchorElement).dataset.section;
-        return section ? document.getElementById(section) : null;
-      })
-      .filter(Boolean) as HTMLElement[];
-
-    const scrollPosition = window.scrollY + 100;
-
+    if (sections.length === 0) return;
+    // A section is active once its top passes ~1/3 down the viewport.
+    const probe = window.scrollY + window.innerHeight / 3;
     let activeSection = '';
     sections.forEach((section) => {
-      if (
-        section.offsetTop <= scrollPosition &&
-        section.offsetTop + section.offsetHeight > scrollPosition
-      ) {
-        activeSection = section.id;
-      }
+      const top = section.getBoundingClientRect().top + window.scrollY;
+      if (top <= probe && top + section.offsetHeight > probe) activeSection = section.id;
     });
-
-    navLinks.forEach((link) => {
-      if ((link as HTMLAnchorElement).dataset.section === activeSection) {
-        link.classList.add(
-          'text-primary-600',
-          'dark:text-primary-400',
-          'bg-primary-50',
-          'dark:bg-primary-900/20'
-        );
-      } else {
-        link.classList.remove(
-          'text-primary-600',
-          'dark:text-primary-400',
-          'bg-primary-50',
-          'dark:bg-primary-900/20'
-        );
-      }
-    });
+    // At the very bottom the last sections can't reach the probe line; pick the last one in view.
+    const atBottom =
+      window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    if (atBottom) {
+      const inView = sections.filter(
+        (s) => s.getBoundingClientRect().top < window.innerHeight * 0.75
+      );
+      activeSection = inView[inView.length - 1]?.id ?? activeSection;
+    }
+    setActive(activeSection);
   };
 
   let ticking = false;
@@ -164,6 +258,7 @@ import ThemeToggle from './ThemeToggle.astro';
   };
 
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
   // Defer the initial geometry reads until after first paint to avoid a forced reflow
   window.requestAnimationFrame(() => {
     setTimeout(() => {
@@ -172,13 +267,8 @@ import ThemeToggle from './ThemeToggle.astro';
     }, 0);
   });
 
-  const commandTrigger = document.getElementById('command-trigger');
-  commandTrigger?.addEventListener('click', () => {
-    const event = new KeyboardEvent('keydown', {
-      key: 'k',
-      metaKey: true,
-      bubbles: true,
-    });
-    document.dispatchEvent(event);
+  document.getElementById('command-trigger')?.addEventListener('click', () => {
+    setMenu(false);
+    document.dispatchEvent(new CustomEvent('open-command-palette'));
   });
 </script>

@@ -32,8 +32,29 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 80px;
+  /* Sticky header height (4rem) + breathing room + iOS notch */
+  scroll-padding-top: calc(5.5rem + env(safe-area-inset-top));
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Only animate in-page jumps when the user hasn't asked for reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Anchored sections/headings also clear the fixed header when targeted directly */
+section[id],
+h2[id],
+h3[id] {
+  scroll-margin-top: calc(5.5rem + env(safe-area-inset-top));
+}
+
+/* Visible keyboard focus everywhere (mouse clicks stay clean) */
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
 }
 
 body {

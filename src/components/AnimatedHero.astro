@@ -2,10 +2,13 @@
 import profile from '../../data/profile.json';
 ---
 
-<section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
+<section
+  id="hero"
+  class="relative min-h-[100svh] flex items-center overflow-hidden pt-[calc(4rem+env(safe-area-inset-top))]"
+>
   <canvas id="hero-canvas" class="absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
 
-  <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
     <div class="max-w-5xl">
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-500/10 border border-primary-500/20 backdrop-blur-sm mb-6 animate-fade-in">
         <span class="relative flex h-2 w-2">
@@ -17,7 +20,7 @@ import profile from '../../data/profile.json';
         </span>
       </div>
 
-      <h1 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold mb-6 tracking-tight leading-none animate-slide-up">
+      <h1 class="text-[clamp(2.75rem,11vw,8rem)] font-bold mb-6 tracking-tight leading-none animate-slide-up">
         <span class="block bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
           {profile.name.split(' ')[0]}
         </span>
@@ -27,7 +30,7 @@ import profile from '../../data/profile.json';
       </h1>
 
       <p
-        class="text-2xl md:text-3xl lg:text-4xl font-light text-gray-600 dark:text-gray-400 mb-4 animate-slide-up"
+        class="text-[clamp(1.375rem,4.5vw,2.25rem)] font-light text-gray-600 dark:text-gray-400 mb-4 animate-slide-up"
         style="animation-delay: 0.1s"
       >
         {profile.title}
@@ -41,7 +44,7 @@ import profile from '../../data/profile.json';
       </p>
 
       <div
-        class="flex items-center gap-3 text-sm font-mono text-gray-600 dark:text-gray-400 mb-10 animate-slide-up"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-mono text-gray-600 dark:text-gray-400 mb-10 animate-slide-up"
         style="animation-delay: 0.3s"
       >
         <span class="flex items-center gap-2">
@@ -65,10 +68,13 @@ import profile from '../../data/profile.json';
         <span>4.5+ years experience</span>
       </div>
 
-      <div class="flex flex-wrap gap-4 animate-slide-up" style="animation-delay: 0.4s">
+      <div
+        class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-4 animate-slide-up"
+        style="animation-delay: 0.4s"
+      >
         <a
           href={profile.links.resume}
-          class="group relative px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-primary-500/50 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+          class="col-span-2 sm:col-auto group relative inline-flex justify-center px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-primary-500/50 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
         >
           <span class="relative z-10 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +93,7 @@ import profile from '../../data/profile.json';
           href={profile.links.github}
           target="_blank"
           rel="noopener noreferrer"
-          class="group px-8 py-4 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-xl font-medium transition-all hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950 backdrop-blur-sm bg-white/50 dark:bg-gray-900/50"
+          class="group inline-flex justify-center px-5 sm:px-8 py-4 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-xl font-medium transition-all hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950 backdrop-blur-sm bg-white/50 dark:bg-gray-900/50"
         >
           <span class="flex items-center gap-2">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -101,7 +107,7 @@ import profile from '../../data/profile.json';
           href={profile.links.linkedin}
           target="_blank"
           rel="noopener noreferrer"
-          class="group px-8 py-4 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-xl font-medium transition-all hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950 backdrop-blur-sm bg-white/50 dark:bg-gray-900/50"
+          class="group inline-flex justify-center px-5 sm:px-8 py-4 border-2 border-gray-300 dark:border-gray-700 hover:border-primary-600 dark:hover:border-primary-400 rounded-xl font-medium transition-all hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950 backdrop-blur-sm bg-white/50 dark:bg-gray-900/50"
         >
           <span class="flex items-center gap-2">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -114,7 +120,7 @@ import profile from '../../data/profile.json';
     </div>
   </div>
 
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+  <div class="absolute bottom-[max(2rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 animate-bounce motion-reduce:animate-none hidden sm:block [@media(max-height:700px)]:hidden">
     <a
       href="#highlights"
       class="flex flex-col items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"

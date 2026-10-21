@@ -139,6 +139,17 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Added to the sticky nav and command palette; external links use `rel="noopener noreferrer"`
 - Source repos are private, so cards link to the live site only (no repo links); stack tags come from each repo's README/package.json
 
+**Responsive UX Pass (2026-10-20)**
+
+- [x] Audit at 360/390/768/1024/1440/1920 px in light and dark (headless Chromium) plus Lighthouse mobile and desktop
+- [x] Mobile menu (hamburger, below 1024px) with all sections; header controls are now 44px tap targets; `aria-current` on the active section
+- [x] Fixed horizontal overflow on phones (the contact row didn't wrap); fluid hero type (`clamp`), `100svh` hero, safe-area insets (`viewport-fit=cover`, notch and home-indicator padding)
+- [x] Command palette: visible touch trigger, close button, top-aligned on phones, body scroll lock, focus return; links work from case study pages (`/#section`)
+- [x] Smooth scrolling only when motion is allowed (removed the unconditional `scroll-smooth`); `scroll-margin-top` so headings clear the fixed header; header stays visible after in-page jumps
+- [x] Back-to-top button; footer Builds link and 44px footer links
+- [x] Case studies: collapsible "On this page" TOC on mobile/tablet; mermaid loads lazily when near the viewport (mobile TBT from 1,120 ms to 0 ms); high-contrast light Shiki theme (fixes a contrast failure)
+- [x] Playwright navigation e2e suite (`tests/e2e/navigation.spec.ts`, 25 tests x 5 viewports x 2 themes) wired into CI as an `e2e` job
+
 ### 🚧 In Progress
 
 _Currently empty - no active development_

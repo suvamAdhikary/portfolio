@@ -3,10 +3,10 @@
 
 <div
   id="command-palette"
-  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+  class="fixed inset-0 z-50 hidden items-start sm:items-center justify-center bg-black/50 backdrop-blur-sm p-3 pt-[max(1rem,env(safe-area-inset-top))] sm:p-4 overscroll-contain"
   role="dialog"
   aria-modal="true"
-  aria-labelledby="command-palette-title"
+  aria-label="Quick navigation"
 >
   <div class="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-scale-in">
     <div class="border-b border-gray-200 dark:border-gray-800 p-4">
@@ -22,17 +22,41 @@
         <input
           type="text"
           id="command-input"
-          placeholder="Type to search sections, case studies, projects, or builds..."
-          class="flex-1 bg-transparent border-none outline-none text-lg placeholder:text-gray-400 dark:placeholder:text-gray-600"
+          placeholder="Jump to a section…"
+          autocomplete="off"
+          enterkeyhint="go"
+          class="flex-1 bg-transparent border-none outline-none text-base sm:text-lg min-h-11 placeholder:text-gray-400 dark:placeholder:text-gray-600"
           aria-label="Search navigation"
         />
-        <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-gray-800 rounded">
-          ESC
-        </kbd>
+        <button
+          type="button"
+          id="command-close"
+          class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-xs font-mono text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-primary-500"
+          aria-label="Esc, close search"
+        >
+          <span class="hidden sm:inline">ESC</span>
+          <svg
+            class="w-4 h-4 sm:hidden"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
       </div>
     </div>
 
-    <div id="command-results" class="max-h-96 overflow-y-auto p-2">
+    <div
+      id="command-results"
+      class="max-h-[min(24rem,calc(100dvh-8rem))] overflow-y-auto overscroll-contain p-2"
+    >
       <div class="text-xs font-mono text-gray-500 dark:text-gray-400 px-3 py-2">
         Quick Navigation
       </div>
@@ -57,6 +81,9 @@
   ];
 
   let selectedIndex = 0;
+  let lastFocus: HTMLElement | null = null;
+  // Section anchors live on the home page; elsewhere link back to it.
+  const hashPrefix = window.location.pathname === '/' ? '' : '/';
 
   const renderResults = (filter: string = '') => {
     if (!results) return;
@@ -75,11 +102,11 @@
       .map(
         (cmd, idx) => `
       <a 
-        href="#${cmd.section}"
-        class="command-item flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${idx === selectedIndex ? 'bg-primary-100 dark:bg-primary-900/30' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}"
+        href="${hashPrefix}#${cmd.section}"
+        class="command-item flex min-h-12 items-center gap-3 px-3 py-3 rounded-lg transition-colors ${idx === selectedIndex ? 'bg-primary-100 dark:bg-primary-900/30' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}"
         data-index="${idx}"
       >
-        <span class="text-2xl">${cmd.icon}</span>
+        <span class="text-2xl" aria-hidden="true">${cmd.icon}</span>
         <span class="flex-1 font-medium">${cmd.name}</span>
         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -90,8 +117,9 @@
       .join('');
 
     const items = results.querySelectorAll('.command-item');
-    items.forEach((item, idx) => {
+    items.forEach((item) => {
       item.addEventListener('click', () => {
+        lastFocus = null;
         closePalette();
       });
     });
@@ -99,8 +127,10 @@
 
   const openPalette = () => {
     if (!palette || !input) return;
+    lastFocus = document.activeElement as HTMLElement | null;
     palette.classList.remove('hidden');
     palette.classList.add('flex');
+    document.documentElement.style.overflow = 'hidden';
     input.value = '';
     input.focus();
     selectedIndex = 0;
@@ -111,7 +141,12 @@
     if (!palette) return;
     palette.classList.add('hidden');
     palette.classList.remove('flex');
+    document.documentElement.style.overflow = '';
+    lastFocus?.focus({ preventScroll: true });
   };
+
+  document.addEventListener('open-command-palette', openPalette);
+  document.getElementById('command-close')?.addEventListener('click', closePalette);
 
   document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
