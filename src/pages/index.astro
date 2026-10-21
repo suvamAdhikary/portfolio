@@ -10,7 +10,6 @@ import Builds from '../components/Builds.astro';
 import { getCollection } from 'astro:content';
 import profile from '../../data/profile.json';
 
-
 const caseStudies = (await getCollection('case-studies'))
   .filter((cs) => !cs.data.draft)
   .sort((a, b) => (a.data.order || 999) - (b.data.order || 999))
@@ -683,7 +682,7 @@ const bootcampProjects = bootcampProjectNames.map((name) => {
             </a>
           </div>
 
-          <div class="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
             <a
               href={profile.links.github}
               target="_blank"
@@ -693,7 +692,7 @@ const bootcampProjects = bootcampProjectNames.map((name) => {
               GitHub
             </a>
             <span>•</span>
-            <span class="font-mono">{profile.email}</span>
+            <span class="font-mono break-all">{profile.email}</span>
             <span>•</span>
             <span>{profile.location}</span>
           </div>

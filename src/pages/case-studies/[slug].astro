@@ -76,7 +76,7 @@ const articleJsonLd = {
       <nav aria-label="Breadcrumb" class="max-w-6xl mx-auto mb-8">
         <a
           href="/#case-studies"
-          class="group inline-flex items-center gap-2 text-sm font-medium text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
+          class="group inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
         >
           <svg
             class="w-4 h-4 transition-transform group-hover:-translate-x-1"
@@ -160,10 +160,47 @@ const articleJsonLd = {
         </ul>
       </header>
 
+      <!-- Mobile/tablet table of contents (the sidebar TOC is desktop-only) -->
+      {toc.length > 1 && (
+        <details class="lg:hidden max-w-6xl mx-auto mb-6 rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl">
+          <summary class="flex min-h-12 cursor-pointer items-center justify-between px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-primary-500 rounded-2xl">
+            <span class="font-mono uppercase tracking-wider text-xs text-gray-600 dark:text-gray-300">
+              On this page
+            </span>
+            <svg
+              class="w-4 h-4 transition-transform [details[open]_&]:rotate-180"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </summary>
+          <ol class="px-3 pb-3 text-sm">
+            {toc.map((h) => (
+              <li>
+                <a
+                  href={`#${h.slug}`}
+                  class="toc-link flex min-h-11 items-center rounded-lg px-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
+                >
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
+
       <div class="max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12">
         <!-- Article body -->
         <article
-          class="prose prose-gray dark:prose-invert max-w-none sm:prose-lg
+          class="prose prose-gray dark:prose-invert max-w-none sm:prose-lg prose-pre:max-w-full prose-pre:overflow-x-auto
           prose-headings:scroll-mt-28 prose-headings:tracking-tight
           prose-h2:mt-14 prose-h2:pb-3 prose-h2:border-b prose-h2:border-gray-200 dark:prose-h2:border-white/10
           prose-a:text-primary-700 dark:prose-a:text-primary-300 prose-a:font-medium prose-a:underline-offset-4
@@ -175,7 +212,7 @@ const articleJsonLd = {
           prose-table:text-sm prose-th:text-left
           prose-img:rounded-2xl prose-img:border prose-img:border-gray-200 dark:prose-img:border-white/10
           prose-hr:border-gray-200 dark:prose-hr:border-white/10
-          rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-6 sm:p-10"
+          rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 sm:p-10 min-w-0"
         >
           <Content />
         </article>
@@ -192,7 +229,7 @@ const articleJsonLd = {
                   <li>
                     <a
                       href={`#${h.slug}`}
-                      class="block text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                      class="toc-link block py-1 text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
                     >
                       {h.text}
                     </a>
@@ -293,11 +330,27 @@ const articleJsonLd = {
       }
     };
 
-    renderAll();
-    new MutationObserver(() => renderAll()).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
+    // Load the (large) mermaid bundle only when a diagram approaches the viewport.
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      renderAll();
+      new MutationObserver(() => renderAll()).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          start();
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+    containers.forEach((el) => io.observe(el));
   }
 </script>
 

@@ -23,6 +23,21 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '.astro/', '**/*.astro'],
+    // Playwright specs run code in both Node and the browser; TypeScript already checks globals.
+    files: ['tests/**/*.ts', 'playwright.config.ts'],
+    rules: {
+      'no-undef': 'off',
+    },
+  },
+  {
+    ignores: [
+      'dist/',
+      'node_modules/',
+      '.astro/',
+      '**/*.astro',
+      'test-results/',
+      'playwright-report/',
+      'blob-report/',
+    ],
   },
 ];

@@ -23,7 +23,8 @@ export default defineConfig({
       excludeLangs: ['mermaid'],
     },
     shikiConfig: {
-      themes: { light: 'github-light', dark: 'github-dark' },
+      // High-contrast light theme keeps token colours above WCAG AA on light backgrounds
+      themes: { light: 'github-light-high-contrast', dark: 'github-dark' },
       defaultColor: false,
     },
   },
