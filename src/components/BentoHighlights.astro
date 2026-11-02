@@ -6,10 +6,19 @@
     <div class="md:col-span-2 lg:row-span-2 group relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 p-8 text-white transition-all hover:shadow-2xl hover:shadow-primary-500/30 hover:-translate-y-1">
       <div class="relative z-10">
         <div class="text-sm font-mono mb-2 opacity-90">Impact</div>
-        <div class="text-5xl md:text-6xl font-bold mb-4 tabular-nums" data-counter="100000">
-          0
+        <div class="text-5xl md:text-6xl font-bold mb-4 tabular-nums">
+          <span class="sr-only">100,000+</span>
+          <span
+            aria-hidden="true"
+            class="inline-block"
+            style="min-width: 8ch"
+            data-counter="100000"
+          >
+            100,000+
+          </span>
         </div>
         <div class="text-xl font-light">Events processed per day</div>
+        <div class="mt-1 text-sm font-mono opacity-90">at upGrad Education</div>
         <div class="mt-6 text-sm opacity-75">
           Kafka-based event-driven architecture across 21+ microservices
         </div>
@@ -21,10 +30,16 @@
       <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/20 to-transparent rounded-bl-full"></div>
       <div class="relative z-10">
         <div class="text-sm font-mono text-gray-600 dark:text-gray-400 mb-2">Optimization</div>
-        <div class="text-4xl font-bold text-green-600 dark:text-green-400 mb-2" data-counter="90">
-          0
+        <div class="text-4xl font-bold text-green-600 dark:text-green-400 mb-2 tabular-nums">
+          <span class="sr-only">90</span>
+          <span aria-hidden="true" class="inline-block" style="min-width: 2ch" data-counter="90">
+            90
+          </span>
         </div>
         <div class="text-sm text-gray-700 dark:text-gray-300">% reduction in DB round-trips</div>
+        <div class="mt-1 text-xs font-mono text-gray-600 dark:text-gray-400">
+          at upGrad Education
+        </div>
       </div>
     </div>
 
@@ -32,10 +47,16 @@
       <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full"></div>
       <div class="relative z-10">
         <div class="text-sm font-mono text-gray-600 dark:text-gray-400 mb-2">Performance</div>
-        <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2" data-counter="5">
-          0
+        <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2 tabular-nums">
+          <span class="sr-only">5</span>
+          <span aria-hidden="true" class="inline-block" style="min-width: 1ch" data-counter="5">
+            5
+          </span>
         </div>
         <div class="text-sm text-gray-700 dark:text-gray-300">x throughput improvement</div>
+        <div class="mt-1 text-xs font-mono text-gray-600 dark:text-gray-400">
+          at upGrad Education
+        </div>
       </div>
     </div>
 
@@ -70,10 +91,16 @@
       <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-transparent rounded-bl-full"></div>
       <div class="relative z-10">
         <div class="text-sm font-mono text-gray-600 dark:text-gray-400 mb-2">Reliability</div>
-        <div class="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2" data-counter="60">
-          0
+        <div class="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2 tabular-nums">
+          <span class="sr-only">60</span>
+          <span aria-hidden="true" class="inline-block" style="min-width: 2ch" data-counter="60">
+            60
+          </span>
         </div>
         <div class="text-sm text-gray-700 dark:text-gray-300">% fewer incidents</div>
+        <div class="mt-1 text-xs font-mono text-gray-600 dark:text-gray-400">
+          at upGrad Education
+        </div>
       </div>
     </div>
 
@@ -81,8 +108,8 @@
       <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/20 to-transparent rounded-bl-full"></div>
       <div class="relative z-10">
         <div class="text-sm font-mono text-gray-600 dark:text-gray-400 mb-2">Experience</div>
-        <div class="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-2" data-counter="4">
-          0
+        <div class="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-2 tabular-nums">
+          4.5+
         </div>
         <div class="text-sm text-gray-700 dark:text-gray-300">years in backend</div>
       </div>
@@ -107,44 +134,55 @@
 </section>
 
 <script>
-  const observerCallback: IntersectionObserverCallback = (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const counters = entry.target.querySelectorAll('[data-counter]');
-        counters.forEach((counter) => {
-          const target = parseInt((counter as HTMLElement).dataset.counter || '0');
-          let current = 0;
-          const increment = target / 50;
-          const duration = 1500;
-          const stepTime = duration / 50;
+  // Final values are rendered in the HTML (crawlers, no-JS, screen readers via .sr-only).
+  // The count-up is a progressive enhancement: only for counters still off-screen when
+  // the script runs, and never under prefers-reduced-motion. Width is reserved with
+  // tabular-nums + min-width (ch), so the layout box never changes.
+  const section = document.getElementById('highlights');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-          const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-              counter.textContent = target.toLocaleString() + (target >= 1000 ? '+' : '');
-              clearInterval(timer);
-            } else {
-              counter.textContent = Math.floor(current).toLocaleString();
-            }
-          }, stepTime);
-        });
-        observer.unobserve(entry.target);
-      }
-    });
+  const format = (value: number, target: number) =>
+    value.toLocaleString('en-US') + (target >= 1000 && value >= target ? '+' : '');
+
+  const animate = (counter: HTMLElement) => {
+    const target = parseInt(counter.dataset.counter || '0', 10);
+    const duration = 1500;
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      counter.textContent = format(t < 1 ? Math.floor(target * eased) : target, target);
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   };
 
-  const observer = new IntersectionObserver(observerCallback, {
-    threshold: 0.3,
-  });
-
-  const section = document.getElementById('highlights');
-  if (section && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    observer.observe(section);
-  } else if (section) {
-    const counters = section.querySelectorAll('[data-counter]');
-    counters.forEach((counter) => {
-      const target = parseInt((counter as HTMLElement).dataset.counter || '0');
-      counter.textContent = target.toLocaleString() + (target >= 1000 ? '+' : '');
-    });
+  if (section && !reduceMotion && 'IntersectionObserver' in window) {
+    const counters = Array.from(section.querySelectorAll<HTMLElement>('[data-counter]'));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const counter = entry.target as HTMLElement;
+          if (counter.dataset.counterState === undefined) {
+            // First report: already visible -> keep the final value, no animation.
+            if (entry.isIntersecting) {
+              counter.dataset.counterState = 'done';
+              observer.unobserve(counter);
+            } else {
+              counter.dataset.counterState = 'pending';
+              counter.textContent = '0';
+            }
+            return;
+          }
+          if (entry.isIntersecting && counter.dataset.counterState === 'pending') {
+            counter.dataset.counterState = 'done';
+            observer.unobserve(counter);
+            animate(counter);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    counters.forEach((counter) => observer.observe(counter));
   }
 </script>

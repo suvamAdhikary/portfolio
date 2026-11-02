@@ -150,13 +150,58 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Case studies: collapsible "On this page" TOC on mobile/tablet; mermaid loads lazily when near the viewport (mobile TBT from 1,120 ms to 0 ms); high-contrast light Shiki theme (fixes a contrast failure)
 - [x] Playwright navigation e2e suite (`tests/e2e/navigation.spec.ts`, 25 tests x 5 viewports x 2 themes) wired into CI as an `e2e` job
 
+**Impact Counters Fix (2026-11-02)**
+
+- [x] Bento impact counters now render their real final values in the static HTML (`100,000+`, `90`, `5`, `60`, `4`) instead of `0`, so crawlers, link previews, no-JS visitors and screen readers get the real numbers (a visually hidden copy carries the value; the animated digits are `aria-hidden`)
+- [x] Count-up is a progressive enhancement: only counters still off-screen when the script runs reset to 0 and animate when 50% visible; counters already visible keep the final value; skipped entirely under `prefers-reduced-motion`
+- [x] Zero layout shift: `tabular-nums` plus a `min-width` in `ch` reserves the final width, so the box never changes when the animation starts (CLS 0 at 375, 768 and 812x375)
+- [x] Each metric is labelled with its source company: 100K+ events/day, 90% fewer DB round-trips, 5x throughput and 60% fewer incidents are all "at upGrad Education" (verified against `data/profile.json`, the three case studies and `public/resume.pdf`); "4 years in backend" is career-wide and left unlabelled
+
+**Mobile-first rule check (21 Oct 2026 rule, checked 2026-11-02)**
+
+- [x] The responsive pass in `feat/responsive-ux` (merged to main as PR #6) covers the rule: mobile menu below 1024px, 44px tap targets, no horizontal overflow, fluid hero type, safe-area insets, mobile TOC, Playwright suite across 5 viewports
+- Remaining gaps noticed at 375/768 (see Next):
+  - Landscape phone (812x375): the `100svh` hero fills the whole short viewport, so the first content sits below the fold; the fixed header takes a large share of the height
+  - At 375 the bento cards stack one per row, making the highlights section very long; the two small metric cards (90 / 5) could sit two-up on phones
+  - At 768 the `md:` 3-column bento leaves the "Experience" card alone on a row with empty space beside it
+
 ### 🚧 In Progress
 
 _Currently empty - no active development_
 
 ---
 
-### 📋 Next (Target: 2026-10-20)
+### 📋 Next
+
+**SEO audit (2 Nov 2026)** — audited the live site (https://suvamadhikary.vercel.app/) and the local build. Fixes below are proposals only; held until Suvam approves.
+
+Passes:
+
+- Unique `<title>`, meta description and canonical on every page (home + 3 case studies)
+- Open Graph (`og:title/description/type/url/image`) and Twitter `summary_large_image` cards on every page; `og:type=article` on case studies
+- JSON-LD: `Person` on home; `TechArticle` (with author `Person`) on each case study
+- `robots.txt` (allow all, points to `sitemap-index.xml`) and `sitemap-index.xml` → `sitemap-0.xml` listing all 4 URLs (live: 200)
+- Semantic headings: exactly one `<h1>` per page, h2 → h3 → h4 order with no skipped levels
+- Lighthouse (local preview, 2026-11-02): 100 / 100 / 100 / 100 mobile and desktop, CLS 0
+- Google Search Console HTML verification file is in `public/` (`googleb…html`)
+
+Missing / proposed fixes:
+
+- [ ] Live site still serves `0` in the counters until this fix is deployed
+- [ ] No `ProfilePage` JSON-LD: wrap the home `Person` as `ProfilePage.mainEntity` (with `dateModified`)
+- [ ] No PWA web manifest or touch icons: add `site.webmanifest` (name, short_name, `theme_color`, `background_color`, 192/512 PNG + maskable icons), `apple-touch-icon.png`, and `<meta name="theme-color">` for light/dark
+- [ ] Open Graph extras: add `og:site_name`, `og:locale`, `og:image:width/height/alt` and `twitter:image:alt`; consider a per-case-study OG image (all pages share `og-image.png`)
+- [ ] `TechArticle`: add `dateModified`, `image`, `mainEntityOfPage` and `publisher` where missing
+- [ ] Sitemap has no `<lastmod>`: enable `lastmod` in `@astrojs/sitemap` (`/sitemap.xml` returns 404; fine because robots.txt points at the index, but submit `sitemap-index.xml` in Search Console)
+- [ ] Search Console: confirm the property is verified for `suvamadhikary.vercel.app`, submit the sitemap, request indexing for the 4 URLs, then re-check Rich Results for `Person`/`ProfilePage`/`TechArticle`
+- [ ] Re-run Lighthouse on production after deploy (local scores are 100; production not re-measured here)
+
+**Mobile follow-ups (from the 2026-11-02 check)**
+
+- [ ] Landscape phones: cap the hero at a sensible height when `orientation: landscape` and `max-height: 500px`
+- [ ] Phones: consider two-up layout for the small bento metric cards; tidy the lone card on the 768 bento row
+
+### 📋 Next — first deployment (Target: 2026-10-20)
 
 **First Deployment**
 
@@ -224,6 +269,12 @@ _Currently empty - no active development_
   - All animations respect prefers-reduced-motion for accessibility
   - Maintained existing SEO/accessibility/performance standards
   - Design benchmarked against top developer portfolios (Linear, Vercel, Stripe careers)
+
+### Future split (2026-11-02)
+
+- **Decision:** Keep this project a single static Astro site (per Suvam's 2 Nov rule); no restructuring now
+- **Date:** 2026-11-02
+- **If it ever grows a backend** (e.g. a contact API or a blog CMS), treat it as a product folder: `portfolio/apps/web` (this Astro site) + `portfolio/services/api` (the backend), each with its own build and deploy
 
 ### Technology Stack
 
@@ -301,4 +352,4 @@ _Currently empty - no active development_
 - Move completed items from "Next" to "Done" with completion date
 - Update project URLs section as deployment progresses
 
-**Last Updated:** 2026-10-14
+**Last Updated:** 2026-11-02
