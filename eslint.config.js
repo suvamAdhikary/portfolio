@@ -23,8 +23,8 @@ export default [
     },
   },
   {
-    // Playwright specs run code in both Node and the browser; TypeScript already checks globals.
-    files: ['tests/**/*.ts', 'playwright.config.ts'],
+    // Playwright specs and browser scripts use DOM/Node globals; TypeScript already checks them.
+    files: ['tests/**/*.ts', 'playwright.config.ts', 'src/**/*.ts'],
     rules: {
       'no-undef': 'off',
     },

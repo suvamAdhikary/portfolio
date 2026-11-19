@@ -1,0 +1,276 @@
+---
+// A living karesansui: an interactive picture of the event-driven systems I build.
+// The canvas script is loaded on demand (see the script below), so it adds almost nothing to
+// the initial page load. A static picture stands in for no-JS visitors (<noscript>) and, after
+// the page has loaded, until the canvas has drawn (<template>, so it never competes with LCP).
+import { getImage } from 'astro:assets';
+import ZenGardenPicture from './ZenGardenPicture.astro';
+
+const images = import.meta.glob<{ default: ImageMetadata }>('../assets/garden/*.webp', {
+  eager: true,
+});
+const src = (name: string) => images[`../assets/garden/${name}.webp`]?.default;
+
+const variants = async (theme: 'light' | 'dark') => {
+  const wide = src(`garden-${theme}-wide`);
+  const tall = src(`garden-${theme}-tall`);
+  if (!wide || !tall) return null;
+  const [w, t] = await Promise.all([
+    getImage({ src: wide, widths: [640, 960, 1280, 1600], format: 'webp', quality: 60 }),
+    getImage({ src: tall, widths: [400, 686], format: 'webp', quality: 60 }),
+  ]);
+  return { w, t };
+};
+const [light, dark] = await Promise.all([variants('light'), variants('dark')]);
+
+const canvasLabel =
+  'A top-down Japanese rock garden. Five stones stand for real systems: Payments and a GraphQL gateway produce events into a Kafka event pipeline, Consumers read from it and write to MongoDB. Small glints travel along raked lines between them to show messages flowing.';
+---
+
+<section
+  id="garden"
+  data-zen-garden
+  aria-labelledby="garden-title"
+  class="relative container mx-auto px-4 sm:px-6 lg:px-8 py-20"
+>
+  <div class="inline-block mb-4">
+    <span class="text-sm font-mono text-primary-600 dark:text-primary-400 tracking-wider uppercase">
+      Systems
+    </span>
+    <span class="ml-2 text-xs font-mono text-gray-600 dark:text-gray-400" lang="ja">
+      流れ <span lang="en">· flow</span>
+    </span>
+  </div>
+  <h2 id="garden-title" class="text-4xl md:text-5xl font-bold mb-4">
+    A quiet garden of busy systems
+  </h2>
+  <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-3xl">
+    The backend I build is meant to feel like this: calm on the surface while events keep moving
+    underneath.
+  </p>
+
+  <figure class="zg-garden m-0" data-garden-root>
+    {light && (
+      <noscript>
+        <ZenGardenPicture wide={light.w} tall={light.t} />
+      </noscript>
+    )}
+    {light && dark && (
+      <template data-garden-fallback>
+        <ZenGardenPicture wide={light.w} tall={light.t} theme="light" />
+        <ZenGardenPicture wide={dark.w} tall={dark.t} theme="dark" />
+      </template>
+    )}
+    <canvas role="img" aria-label={canvasLabel}></canvas>
+  </figure>
+  <div class="zg-caption">
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+      Each stone is a kind of system I build. Events flow from producers through Kafka to consumers,
+      staying calm under load and recovering from failure.
+    </p>
+    <span class="zg-hint text-gray-600 dark:text-gray-400" id="garden-hint">
+      Tap a stone to add load. Hold to simulate a failure.
+    </span>
+  </div>
+  <p class="zg-status text-gray-700 dark:text-gray-300" id="garden-status" aria-live="polite"></p>
+</section>
+
+<script>
+  // Lazy init: only when the garden nears the viewport, then in idle time, via dynamic import.
+  const section = document.querySelector<HTMLElement>('[data-zen-garden]');
+  const figure = section?.querySelector<HTMLElement>('[data-garden-root]');
+
+  const whenIdle = (cb: () => void) =>
+    typeof window.requestIdleCallback === 'function'
+      ? window.requestIdleCallback(cb, { timeout: 2000 })
+      : setTimeout(cb, 200);
+
+  // Placeholder picture: inserted after load (or as soon as the garden is near), never before LCP
+  let placed = false;
+  const placeFallback = () => {
+    if (placed || !section || !figure || section.dataset.ready) return;
+    placed = true;
+    const tpl = figure.querySelector<HTMLTemplateElement>('template[data-garden-fallback]');
+    if (tpl) figure.insertBefore(tpl.content.cloneNode(true), figure.querySelector('canvas'));
+  };
+
+  const boot = async () => {
+    if (!section || !figure) return;
+    try {
+      const { mountGarden } = await import('../scripts/zen-garden');
+      mountGarden(figure, document.getElementById('garden-status'), 'garden-hint');
+      section.dataset.ready = 'true';
+    } catch (err) {
+      // Keep the static picture if Canvas 2D is unavailable or the chunk fails to load.
+      placeFallback();
+      console.warn('Zen garden did not start:', err);
+    }
+  };
+
+  if (document.readyState === 'complete') whenIdle(placeFallback);
+  else window.addEventListener('load', () => whenIdle(placeFallback), { once: true });
+
+  if (figure && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        placeFallback();
+        whenIdle(boot);
+      },
+      { rootMargin: '0px 0px 200px 0px' }
+    );
+    io.observe(figure);
+  } else {
+    placeFallback();
+  }
+</script>
+
+<style is:global>
+  .zg-garden {
+    position: relative;
+    width: 100%;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    max-height: min(78svh, 640px);
+    min-height: 240px;
+    background: #e6e1d5;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.06),
+      0 12px 32px -18px rgb(40 30 15 / 0.35);
+    -webkit-touch-callout: none;
+  }
+  .dark .zg-garden {
+    background: #323a49;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.08),
+      0 16px 40px -20px rgb(0 0 0 / 0.8);
+  }
+  @media (max-width: 560px) {
+    .zg-garden {
+      aspect-ratio: 4 / 5;
+      border-radius: 1rem;
+    }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .zg-garden {
+      aspect-ratio: auto;
+      height: 76svh;
+    }
+  }
+  .zg-garden canvas,
+  .zg-garden .zg-fallback {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .zg-garden .zg-fallback {
+    object-fit: cover;
+    object-position: center;
+  }
+  .zg-garden canvas {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  [data-zen-garden][data-ready] .zg-garden canvas {
+    opacity: 1;
+  }
+  .zg-stone {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .zg-stone:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 4px;
+  }
+  .zg-label {
+    position: absolute;
+    transform: translate(-50%, 0);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    color: #4a4033;
+    pointer-events: none;
+    padding: 3px 6px;
+    border-radius: 3px;
+    background: rgb(250 246 236 / 0.86);
+    border: 1px solid rgb(120 98 66 / 0.18);
+    box-shadow: 0 1px 2px rgb(60 40 20 / 0.1);
+  }
+  .dark .zg-label {
+    color: #c3cde0;
+    background: rgb(16 20 30 / 0.74);
+    border-color: rgb(170 190 230 / 0.14);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+  }
+  .zg-label b {
+    font-weight: 450;
+    color: inherit;
+  }
+  .zg-label .zg-st {
+    margin-left: 0.45em;
+    color: #b4530f;
+  }
+  .dark .zg-label .zg-st {
+    color: #fb9a4a;
+  }
+  .zg-label .zg-lag {
+    margin-left: 0.45em;
+    color: #1e6fc4;
+  }
+  .dark .zg-label .zg-lag {
+    color: #9cc8ff;
+  }
+  @media (min-width: 900px) {
+    .zg-label {
+      font-size: 11.5px;
+    }
+  }
+  .zg-caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: 0.9rem;
+  }
+  .zg-caption p {
+    margin: 0;
+    line-height: 1.55;
+    max-width: 40rem;
+  }
+  .zg-hint,
+  .zg-status {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  /* The hint only makes sense once the stones are interactive */
+  [data-zen-garden]:not([data-ready]) .zg-hint {
+    visibility: hidden;
+  }
+  .zg-status {
+    min-height: 1.2em;
+    margin-top: 0.35rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zg-garden canvas {
+      transition: none;
+    }
+  }
+</style>

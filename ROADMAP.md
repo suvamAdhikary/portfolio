@@ -167,7 +167,18 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 
 ### 🚧 In Progress
 
-_Currently empty - no active development_
+**Zen garden, stage 1: home garden (2026-11-19, in review on `feat/zen-garden`)**
+
+- [x] `src/components/ZenGarden.astro` renders right after the hero, before the impact counters; all other sections unchanged
+- [x] Interactive karesansui on plain Canvas 2D, ported from the approved prototype to TypeScript (`src/scripts/zen-garden.ts`): five stones (Payments, GraphQL gateway, Kafka, Consumers, MongoDB), messages as glints along raked streams, tap a stone to add load (lag builds at Consumers, then clears), hold or press F to simulate a failure with realistic recovery
+- [x] Follows the site theme live (`html.dark` + the header toggle); moonlit night theme with a glowing lantern
+- [x] Accessibility: canvas `role="img"` with a description, real `<button>` per stone (keyboard: Enter adds load, F fails), `aria-live` status line, still frame under `prefers-reduced-motion`, pauses off-screen and when the tab is hidden
+- [x] SEO: heading, intro and caption are real HTML; no company names in the garden (the upGrad figures stay in the counters)
+- [x] Performance: script is a separate ~13 KB gzipped chunk, dynamically imported only when the garden is within 200px of the viewport and in `requestIdleCallback`; initial JS added is ~1.5 KB gzipped (loader + Vite preload helper); canvas box reserved with `aspect-ratio` (CLS 0)
+- [x] Static WebP fallback (light/dark, phone and wide crops via `astro:assets`): `<noscript>` for no-JS, and a `<template>` inserted after page load so it never competes with LCP
+- [x] First-draw trimmed versus the prototype: rocks, moss and shadows render into small offscreen canvases at their own size, river pebbles are one seamless tile, colour batches are single fills, DPR capped at 2, no `ctx.filter` (cheap downscale blur works the same in Safari). Measured in headless Chrome with 4x CPU throttling (software canvas, so pessimistic): phone 375x812@2x about 0.3 s (prototype about 0.65 s), desktop 1440x900 about 0.38 s (prototype about 0.9 s)
+- [x] Playwright: `tests/e2e/zen-garden.spec.ts` (section order and crawlable text, lazy init after scrolling, theme toggle, reduced-motion still frame) across all 10 viewport/theme projects; full suite 290 passing
+- [x] Lighthouse on the local build (gzip static server): 100 / 100 / 100 / 100 mobile and desktop, CLS 0, before and after
 
 ---
 
@@ -187,7 +198,7 @@ Passes:
 
 Missing / proposed fixes:
 
-- [ ] Live site still serves `0` in the counters until this fix is deployed
+- [x] Counters fix is live (PR #7 merged; production HTML shows `100,000+`, checked 2026-11-19)
 - [ ] No `ProfilePage` JSON-LD: wrap the home `Person` as `ProfilePage.mainEntity` (with `dateModified`)
 - [ ] No PWA web manifest or touch icons: add `site.webmanifest` (name, short_name, `theme_color`, `background_color`, 192/512 PNG + maskable icons), `apple-touch-icon.png`, and `<meta name="theme-color">` for light/dark
 - [ ] Open Graph extras: add `og:site_name`, `og:locale`, `og:image:width/height/alt` and `twitter:image:alt`; consider a per-case-study OG image (all pages share `og-image.png`)
@@ -195,6 +206,14 @@ Missing / proposed fixes:
 - [ ] Sitemap has no `<lastmod>`: enable `lastmod` in `@astrojs/sitemap` (`/sitemap.xml` returns 404; fine because robots.txt points at the index, but submit `sitemap-index.xml` in Search Console)
 - [ ] Search Console: confirm the property is verified for `suvamadhikary.vercel.app`, submit the sitemap, request indexing for the 4 URLs, then re-check Rich Results for `Person`/`ProfilePage`/`TechArticle`
 - [ ] Re-run Lighthouse on production after deploy (local scores are 100; production not re-measured here)
+
+**Zen garden: next stages (plan approved 2026-11; build each only after Suvam says go)**
+
+- [ ] Stage 2: case-study request walkthroughs, a short tap-through at the top of each case study in the garden style (a Kafka event through partitions, a GraphQL query fanning out, a payment with retries and idempotency)
+- [ ] Stage 3: skills view, a toggle or search that regroups the same stones by meaning ("payments", "Kafka", "LLM"), grouping computed ahead of time (no live AI)
+- [ ] Stage 4: Builds stones, a tiny stone per game card (Lemonade Day, DevArcade, Framekar) that ripples on hover and links to the live game
+- [ ] Stage 5: seasonal touches (sakura or maple by month) and a "behind the garden" note on how the scene is built
+- [ ] Garden polish to consider: split the first build across frames to shorten the one long task on slow phones; regenerate the fallback WebPs whenever the garden's look changes
 
 **Mobile follow-ups (from the 2026-11-02 check)**
 
@@ -269,6 +288,13 @@ Missing / proposed fixes:
   - All animations respect prefers-reduced-motion for accessibility
   - Maintained existing SEO/accessibility/performance standards
   - Design benchmarked against top developer portfolios (Linear, Vercel, Stripe careers)
+
+### Zen garden (2026-11-19)
+
+- **Decision:** One small interactive piece on an otherwise fast static site: a Japanese dry garden whose stones are the kinds of systems Suvam builds. Original concept (no car, no toy world), tied to backend work and Japan
+- **Date:** 2026-11-19
+- **Rationale:** Explains distributed-systems behaviour (load, lag, failure, recovery) instead of decoration; plain Canvas 2D keeps it tiny; lazy loading, a reserved box and a static fallback keep Core Web Vitals and SEO intact
+- **Stages:** 1 home garden (in review) → 2 case-study walkthroughs → 3 skills view → 4 Builds stones → 5 seasonal touches
 
 ### Future split (2026-11-02)
 
@@ -352,4 +378,4 @@ Missing / proposed fixes:
 - Move completed items from "Next" to "Done" with completion date
 - Update project URLs section as deployment progresses
 
-**Last Updated:** 2026-11-02
+**Last Updated:** 2026-11-19
