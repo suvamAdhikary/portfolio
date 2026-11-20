@@ -1,0 +1,36 @@
+---
+// One static garden picture (phone and wide crops). Used by ZenGarden.astro as the no-JS
+// view and as the placeholder shown until the canvas has drawn its first frame.
+import type { GetImageResult } from 'astro';
+
+interface Props {
+  wide: GetImageResult;
+  tall: GetImageResult;
+  /** Show only in this theme (follows the .dark class); omit to always show. */
+  theme?: 'light' | 'dark';
+}
+
+const { wide, tall, theme } = Astro.props;
+const themeClass =
+  theme === 'dark' ? 'hidden dark:contents' : theme === 'light' ? 'contents dark:hidden' : '';
+---
+
+<picture class={themeClass || undefined}>
+  <source
+    media="(max-width: 560px)"
+    type="image/webp"
+    srcset={tall.srcSet.attribute}
+    sizes="calc(100vw - 2rem)"
+  />
+  <img
+    class="zg-fallback"
+    src={wide.src}
+    srcset={wide.srcSet.attribute}
+    sizes="(min-width: 1280px) 1216px, calc(100vw - 3rem)"
+    alt=""
+    width={wide.attributes.width}
+    height={wide.attributes.height}
+    loading="lazy"
+    decoding="async"
+  />
+</picture>
