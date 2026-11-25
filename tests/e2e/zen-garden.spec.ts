@@ -44,7 +44,7 @@ test.describe('zen garden', () => {
     await expect(page.locator('#garden canvas')).toHaveAttribute('role', 'img');
     await expect(page.locator('#garden canvas')).toHaveAttribute(
       'aria-label',
-      /Japanese rock garden/
+      /Japanese rock garden that changes with the seasons/
     );
     await expect(page.locator('#garden-status')).toHaveAttribute('aria-live', 'polite');
   });
@@ -66,6 +66,7 @@ test.describe('zen garden', () => {
     });
     expect(chunks).toHaveLength(1);
     await expect(page.locator('#garden .zg-stone')).toHaveCount(5);
+    await expect(page.locator('#garden .zg-label')).toHaveCount(5);
     await expect(page.locator('#garden-status')).toHaveText('All systems steady.');
     expect(await paintedRatio(page)).toBeGreaterThan(0.95);
 
@@ -79,9 +80,45 @@ test.describe('zen garden', () => {
     const kafka = page.getByRole('button', { name: 'Event pipeline (Kafka): add load' });
     await kafka.focus();
     await page.keyboard.press('Enter');
-    await expect(page.locator('#garden-status')).toContainText('Load spike through');
+    await expect(page.locator('#garden-status')).toContainText(
+      'Traffic spike toward Event pipeline (Kafka)'
+    );
     await page.keyboard.press('f');
-    await expect(page.locator('#garden-status')).toContainText('Kafka is down.');
+    await expect(page.locator('#garden-status')).toContainText('Kafka broker down.');
+    await expect(page.locator('#garden .zg-label.zg-down')).toHaveCount(1);
+
+    // The pond, tree and lantern are reachable by keyboard too
+    await page.getByRole('button', { name: 'Koi pond: feed the koi' }).press('Enter');
+    await expect(page.locator('#garden-status')).toHaveText(
+      'The koi come to see what you dropped.'
+    );
+    await page.getByRole('button', { name: 'Stone lantern: light or put out' }).press('Enter');
+    await expect(page.locator('#garden-status')).toHaveText('Lantern out. The garden sleeps.');
+  });
+
+  test('season switcher repaints the garden', async ({ page }) => {
+    await page.goto('/');
+    await scrollToGarden(page);
+    await expect(page.locator('#garden')).toHaveAttribute('data-ready', 'true', {
+      timeout: 15_000,
+    });
+    const group = page.getByRole('group', { name: 'Season' });
+    await expect(group.getByRole('button')).toHaveCount(4);
+    await expect(group.locator('[aria-pressed="true"]')).toHaveCount(1);
+    const current = await group.locator('[aria-pressed="true"]').getAttribute('data-garden-season');
+    const next = current === 'winter' ? 'spring' : 'winter';
+    const shot = () =>
+      page.evaluate(() =>
+        document.querySelector<HTMLCanvasElement>('[data-garden-root] canvas')!.toDataURL()
+      );
+    const before = await shot();
+    await group.locator(`[data-garden-season="${next}"]`).click();
+    await expect(group.locator(`[data-garden-season="${next}"]`)).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    await expect(page.locator('#garden-status')).toContainText('in the garden.');
+    await expect.poll(shot).not.toBe(before);
   });
 
   test('follows the site theme toggle live', async ({ page }) => {
@@ -124,7 +161,32 @@ test.describe('zen garden with reduced motion', () => {
 
     await page.getByRole('button', { name: 'Payments: add load' }).focus();
     await page.keyboard.press('Enter');
-    await expect(page.locator('#garden-status')).toContainText('Load spike through Payments');
+    await expect(page.locator('#garden-status')).toContainText('Payments: +5 events');
+    expect(await frame()).not.toBe(a);
+  });
+
+  test('dragging rakes the sand', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await scrollToGarden(page);
+    await expect(page.locator('#garden')).toHaveAttribute('data-ready', 'true', {
+      timeout: 15_000,
+    });
+    const fig = page.locator('[data-garden-root]');
+    const frame = () =>
+      page.evaluate(() =>
+        document.querySelector<HTMLCanvasElement>('[data-garden-root] canvas')!.toDataURL()
+      );
+    await page.waitForTimeout(300);
+    const a = await frame();
+    const b = (await fig.boundingBox())!;
+    const y = b.y + b.height * 0.55;
+    await page.mouse.move(b.x + b.width * 0.05, y);
+    await page.mouse.down();
+    for (let i = 1; i <= 15; i++)
+      await page.mouse.move(b.x + b.width * (0.05 + i * 0.02), y + (i % 3) * 4);
+    await page.mouse.up();
+    await expect(fig).toHaveClass(/played/);
     expect(await frame()).not.toBe(a);
   });
 });
