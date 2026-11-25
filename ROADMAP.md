@@ -180,6 +180,19 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Playwright: `tests/e2e/zen-garden.spec.ts` (section order and crawlable text, lazy init after scrolling, theme toggle, reduced-motion still frame) across all 10 viewport/theme projects; full suite 290 passing
 - [x] Lighthouse on the local build (gzip static server): 100 / 100 / 100 / 100 mobile and desktop, CLS 0, before and after
 
+**Zen garden v2: seasonal + playful (2026-11-25, staged on `feat/zen-garden`; PR #8 with stage 1 is already merged to `main`, so this needs a new PR)**
+
+- [x] Replaced the stage 1 garden with the approved v2 prototype ("yah, better"), ported to typed TypeScript in `src/scripts/zen-garden.ts` (same `mountGarden(root, statusEl, hintId)` entry point, so `ZenGarden.astro` keeps its lazy IntersectionObserver + idle boot, inlined boot script, reserved `aspect-ratio` box and `<template>` fallback)
+- [x] Seasons: spring sakura, summer leaves and fireflies at night, autumn momiji, winter snow on white sand; defaults to today's season, with a 春夏秋冬 switcher above the garden (marks today's season)
+- [x] A real garden from above: moss islands, natural streams with pebble banks, an irregular Kafka pond, a koi pond with chain-bodied koi, a red bridge, a stone lantern and a leafy canopy built from leaf and blossom sprites
+- [x] Playful: drag to rake the sand (raked lines survive season and theme switches), tap a stone to send a burst of lantern-events, hold it (or press F) to crack the stone and watch producers or Kafka buffer then recover, tap the pond to feed the koi, the tree to shake it, the lantern to light it; a ghost rake demonstrates on first view
+- [x] Dark theme is a lantern-lit evening: the tint is baked into the static layers, so there is no per-frame overlay; glows use additive blending
+- [x] Accessibility: real buttons for all five stones plus the pond, tree and lantern (Enter acts, F fails a stone), `aria-live` status, labels showing Kafka's buffer and MongoDB's saved count, still frame under `prefers-reduced-motion` (taps and rakes still redraw it, and it follows changes to the setting live)
+- [x] Performance: garden chunk 20.9 KB gzipped (was 12.9 KB), still only requested near the viewport; the heavy tree layer builds in idle time after the first frame. 60 fps median under 4x CPU throttling on phone and desktop. Lighthouse on the box (LHCI 0.15.1, 3 runs): desktop 100/100/100/100, mobile 96-98/100/100/100 (base commit on the same box: 97), CLS 0, network-dependency-tree-insight 1
+- [x] Static WebP fallbacks regenerated from the new garden (light/dark, wide/tall; autumn)
+- [x] Playwright: `tests/e2e/zen-garden.spec.ts` updated for the new status texts, plus season switcher, keyboard pond/lantern and reduced-motion rake tests; full suite 310 passing
+- [ ] Pre-existing, not from the garden: LHCI's desktop `label-content-name-mismatch` assertion fails on the header's `#command-trigger` button (also fails on the base commit)
+
 ---
 
 ### 📋 Next
@@ -212,7 +225,7 @@ Missing / proposed fixes:
 - [ ] Stage 2: case-study request walkthroughs, a short tap-through at the top of each case study in the garden style (a Kafka event through partitions, a GraphQL query fanning out, a payment with retries and idempotency)
 - [ ] Stage 3: skills view, a toggle or search that regroups the same stones by meaning ("payments", "Kafka", "LLM"), grouping computed ahead of time (no live AI)
 - [ ] Stage 4: Builds stones, a tiny stone per game card (Lemonade Day, DevArcade, Framekar) that ripples on hover and links to the live game
-- [ ] Stage 5: seasonal touches (sakura or maple by month) and a "behind the garden" note on how the scene is built
+- [ ] Stage 5: a "behind the garden" note on how the scene is built (seasonal touches shipped in v2)
 - [ ] Garden polish to consider: split the first build across frames to shorten the one long task on slow phones; regenerate the fallback WebPs whenever the garden's look changes
 
 **Mobile follow-ups (from the 2026-11-02 check)**

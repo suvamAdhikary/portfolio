@@ -24,7 +24,14 @@ const variants = async (theme: 'light' | 'dark') => {
 const [light, dark] = await Promise.all([variants('light'), variants('dark')]);
 
 const canvasLabel =
-  'A top-down Japanese rock garden. Five stones stand for real systems: Payments and a GraphQL gateway produce events into a Kafka event pipeline, Consumers read from it and write to MongoDB. Small glints travel along raked lines between them to show messages flowing.';
+  'A top-down Japanese rock garden that changes with the seasons: raked sand, moss islands with stones, streams carrying floating lanterns, a koi pond with a red bridge, a stone lantern and a seasonal tree. Each stone stands for a real system: Payments and a GraphQL gateway send lanterns, standing for events, down the streams into the Kafka pond, then on to Consumers and into the MongoDB pond.';
+
+const seasons = [
+  { id: 'spring', kanji: '春', name: 'Spring' },
+  { id: 'summer', kanji: '夏', name: 'Summer' },
+  { id: 'autumn', kanji: '秋', name: 'Autumn' },
+  { id: 'winter', kanji: '冬', name: 'Winter' },
+];
 ---
 
 <section
@@ -44,10 +51,21 @@ const canvasLabel =
   <h2 id="garden-title" class="text-4xl md:text-5xl font-bold mb-4">
     A quiet garden of busy systems
   </h2>
-  <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-3xl">
+  <p class="text-xl text-gray-600 dark:text-gray-400 mb-6 max-w-3xl">
     The backend I build is meant to feel like this: calm on the surface while events keep moving
     underneath.
   </p>
+
+  <div class="zg-seasons" role="group" aria-label="Season">
+    {seasons.map((s) => (
+      <button type="button" data-garden-season={s.id} aria-pressed="false">
+        <span class="zg-kanji" lang="ja" aria-hidden="true">
+          {s.kanji}
+        </span>
+        <span class="zg-season-name">{s.name}</span>
+      </button>
+    ))}
+  </div>
 
   <figure class="zg-garden m-0" data-garden-root>
     {light && (
@@ -69,7 +87,7 @@ const canvasLabel =
       staying calm under load and recovering from failure.
     </p>
     <span class="zg-hint text-gray-600 dark:text-gray-400" id="garden-hint">
-      Tap a stone to add load. Hold to simulate a failure.
+      Drag to rake the sand. Tap a stone to add load, hold it to break it.
     </span>
   </div>
   <p class="zg-status text-gray-700 dark:text-gray-300" id="garden-status" aria-live="polite"></p>
@@ -135,14 +153,17 @@ const canvasLabel =
     aspect-ratio: 16 / 9;
     max-height: min(78svh, 640px);
     min-height: 240px;
-    background: #e6e1d5;
+    background: #e9e2cf;
     box-shadow:
       0 1px 2px rgb(0 0 0 / 0.06),
       0 12px 32px -18px rgb(40 30 15 / 0.35);
     -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
   .dark .zg-garden {
-    background: #323a49;
+    background: #2a2f45;
     box-shadow:
       0 0 0 1px rgb(255 255 255 / 0.08),
       0 16px 40px -20px rgb(0 0 0 / 0.8);
@@ -178,7 +199,13 @@ const canvasLabel =
   [data-zen-garden][data-ready] .zg-garden canvas {
     opacity: 1;
   }
-  .zg-stone {
+  .zg-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  /* Real buttons for keyboard and screen readers; pointer input goes to the canvas */
+  .zg-hit {
     position: absolute;
     transform: translate(-50%, -50%);
     border-radius: 50%;
@@ -186,16 +213,14 @@ const canvasLabel =
     padding: 0;
     margin: 0;
     background: transparent;
-    cursor: pointer;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    user-select: none;
-    -webkit-user-select: none;
+    pointer-events: none;
   }
-  .zg-stone:focus-visible {
-    outline: 2px solid var(--color-primary-500);
-    outline-offset: 4px;
+  .zg-hit-lamp {
+    border-radius: 8px;
+  }
+  .zg-hit:focus-visible {
+    outline: 2px solid #fff;
+    box-shadow: 0 0 0 4px var(--color-primary-500);
   }
   .zg-label {
     position: absolute;
@@ -203,44 +228,117 @@ const canvasLabel =
     font-family: var(--font-mono);
     font-size: 10px;
     line-height: 1;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     white-space: nowrap;
-    color: #4a4033;
+    color: #3f3528;
     pointer-events: none;
     padding: 3px 6px;
-    border-radius: 3px;
-    background: rgb(250 246 236 / 0.86);
-    border: 1px solid rgb(120 98 66 / 0.18);
-    box-shadow: 0 1px 2px rgb(60 40 20 / 0.1);
+    border-radius: 4px;
+    background: rgb(252 248 238 / 0.88);
+    border: 1px solid rgb(120 98 66 / 0.2);
+    box-shadow: 0 1px 2px rgb(60 40 20 / 0.12);
   }
   .dark .zg-label {
-    color: #c3cde0;
-    background: rgb(16 20 30 / 0.74);
-    border-color: rgb(170 190 230 / 0.14);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+    color: #e7dcc6;
+    background: rgb(20 18 26 / 0.72);
+    border-color: rgb(255 200 130 / 0.18);
   }
   .zg-label b {
-    font-weight: 450;
+    font-weight: 500;
     color: inherit;
   }
   .zg-label .zg-st {
     margin-left: 0.45em;
-    color: #b4530f;
-  }
-  .dark .zg-label .zg-st {
-    color: #fb9a4a;
-  }
-  .zg-label .zg-lag {
-    margin-left: 0.45em;
     color: #1e6fc4;
   }
-  .dark .zg-label .zg-lag {
-    color: #9cc8ff;
+  .dark .zg-label .zg-st {
+    color: #ffcf7a;
+  }
+  .zg-label.zg-down .zg-st {
+    color: #c2410c;
+  }
+  .dark .zg-label.zg-down .zg-st {
+    color: #ff8a5c;
+  }
+  .zg-label .zg-st:empty {
+    display: none;
   }
   @media (min-width: 900px) {
     .zg-label {
       font-size: 11.5px;
     }
+  }
+  .zg-seasons {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    margin-bottom: 0.75rem;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.04);
+    border: 1px solid rgb(0 0 0 / 0.08);
+  }
+  .dark .zg-seasons {
+    background: rgb(255 255 255 / 0.06);
+    border-color: rgb(255 255 255 / 0.1);
+  }
+  .zg-seasons button {
+    position: relative;
+    display: inline-flex;
+    gap: 0.35rem;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.4rem 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+  }
+  .dark .zg-seasons button {
+    color: #d1d5db;
+  }
+  .zg-seasons button[aria-pressed='true'] {
+    background: #fff;
+    color: #111827;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .dark .zg-seasons button[aria-pressed='true'] {
+    background: rgb(255 255 255 / 0.14);
+    color: #fff;
+  }
+  .zg-seasons button.zg-now::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #c2410c;
+  }
+  .zg-seasons button:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+  .zg-kanji {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+  @media (max-width: 420px) {
+    .zg-season-name {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+  }
+  /* The switcher and hint only make sense once the garden is interactive */
+  [data-zen-garden]:not([data-ready]) .zg-seasons {
+    visibility: hidden;
   }
   .zg-caption {
     display: flex;
