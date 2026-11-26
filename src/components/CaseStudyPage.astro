@@ -10,6 +10,7 @@ import { homePath, localizePath, type Locale } from '../i18n/config';
 import { formatDate } from '../i18n/content';
 import type { CaseStudy } from '../i18n/case-studies';
 import { t } from '../i18n/ui';
+import { SITE_NAME, caseStudyOgKey, ogImagePath, techArticleJsonLd } from '../lib/seo';
 
 interface Props {
   study: CaseStudy;
@@ -36,19 +37,17 @@ const readingMinutes =
     : Math.max(1, Math.round(body.split(/\s+/).filter(Boolean).length / 220));
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvamadhikary.vercel.app';
-const pageUrl = new URL(Astro.url.pathname, siteUrl).toString();
-const articleJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'TechArticle',
-  headline: study.data.title,
+const ogImage = ogImagePath(caseStudyOgKey(study.id), locale);
+const articleJsonLd = techArticleJsonLd({
+  siteUrl,
+  pageUrl: new URL(Astro.url.pathname, siteUrl).toString(),
+  locale,
+  title: study.data.title,
   description: study.data.description,
-  datePublished: study.data.publishDate.toISOString(),
-  keywords: study.data.tags.join(', '),
-  inLanguage: locale,
-  url: pageUrl,
-  mainEntityOfPage: pageUrl,
-  author: { '@type': 'Person', name: 'Suvam Adhikary', url: siteUrl },
-};
+  image: new URL(ogImage, siteUrl).toString(),
+  datePublished: study.data.publishDate,
+  keywords: study.data.tags,
+});
 ---
 
 <BaseLayout
@@ -56,8 +55,10 @@ const articleJsonLd = {
   description={study.data.description}
   ogType="article"
   locale={locale}
+  ogImage={ogImage}
+  ogImageAlt={t(locale).meta.ogAltCaseStudy(study.data.title, SITE_NAME)}
+  jsonLd={articleJsonLd}
 >
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />
   <StickyNav />
   <CommandPalette />
 

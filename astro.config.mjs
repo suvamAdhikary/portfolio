@@ -1,4 +1,6 @@
 // @ts-check
+/* global URL */
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -132,6 +134,38 @@ function inlineGardenBootScript() {
   };
 }
 
+/**
+ * `<lastmod>` for the sitemap: the last commit that touched a page's own source (the
+ * case study's MDX file), else the latest commit (home pages are built from many files).
+ * Falls back to the build time when git history is unavailable.
+ */
+const root = path.dirname(fileURLToPath(import.meta.url));
+/** @param {string[]} files @returns {string | undefined} */
+function gitLastModified(files) {
+  try {
+    const out = execFileSync('git', ['log', '-1', '--format=%cI', '--', ...files], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return out || undefined;
+  } catch {
+    return undefined;
+  }
+}
+const buildTime = new Date().toISOString();
+const siteLastmod = gitLastModified([]) ?? buildTime;
+/** @param {string} url */
+function sitemapLastmod(url) {
+  const m = new URL(url).pathname.match(/^\/(?:(ja)\/)?case-studies\/([^/]+)\/?$/);
+  if (!m) return siteLastmod;
+  const dir = m[1] ? 'case-studies-ja' : 'case-studies';
+  const file = ['mdx', 'md']
+    .map((ext) => `src/content/${dir}/${m[2]}.${ext}`)
+    .find((f) => fs.existsSync(path.join(root, f)));
+  return (file && gitLastModified([file])) ?? siteLastmod;
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://suvamadhikary.vercel.app',
@@ -150,7 +184,14 @@ export default defineConfig({
   integrations: [
     mdx(),
     // Adds <xhtml:link rel="alternate" hreflang> entries for each en/ja page pair
-    sitemap({ i18n: { defaultLocale: 'en', locales: { en: 'en', ja: 'ja' } } }),
+    // and a <lastmod> per URL (see sitemapLastmod)
+    sitemap({
+      i18n: { defaultLocale: 'en', locales: { en: 'en', ja: 'ja' } },
+      serialize(item) {
+        item.lastmod = sitemapLastmod(item.url);
+        return item;
+      },
+    }),
     inlineGardenBootScript(),
   ],
   vite: {

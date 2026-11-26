@@ -9,6 +9,10 @@ const en = {
     // Home title/description come from data/profile.json for English.
     homeTitle: null as string | null,
     homeDescription: null as string | null,
+    /** Alt text of the social preview cards (public/og/*.png). */
+    ogAltHome: (name: string, title: string, location: string) =>
+      `${name}, ${title} in ${location}. Portfolio preview card.`,
+    ogAltCaseStudy: (title: string, name: string) => `Case study by ${name}: ${title}`,
   },
   nav: {
     about: 'About',
@@ -149,6 +153,9 @@ const ja: UI = {
     homeTitle: 'Suvam Adhikary | バックエンドエンジニア（Node.js・TypeScript・Kafka）',
     homeDescription:
       'Node.js・TypeScript・Kafka・MongoDB を中心に、本番運用の API、マイクロサービス、イベント駆動システムの開発に4.5年以上携わるバックエンドエンジニア Suvam Adhikary のポートフォリオです。職務経歴と技術ケーススタディを掲載しています。',
+    ogAltHome: (name: string, title: string, location: string) =>
+      `${name}（${title}・${location}）のポートフォリオ紹介画像`,
+    ogAltCaseStudy: (title: string, name: string) => `${name} のケーススタディ「${title}」`,
   },
   nav: {
     about: 'プロフィール',

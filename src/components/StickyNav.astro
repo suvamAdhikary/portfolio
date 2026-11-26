@@ -64,10 +64,12 @@ const links = [
           id="command-trigger"
           type="button"
           class="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 px-3 text-sm font-medium rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
-          aria-label={ui.nav.search}
           aria-haspopup="dialog"
           aria-controls="command-palette"
         >
+          <!-- Name as hidden text rather than aria-label: the visible ⌘K hint is not in the
+               name, which fails Lighthouse's label-content-name-mismatch on desktop. -->
+          <span class="sr-only">{ui.nav.search}</span>
           <svg
             class="w-4 h-4"
             fill="none"

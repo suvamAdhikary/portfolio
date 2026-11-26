@@ -15,6 +15,7 @@ import { formatMonth, getProfile, jaProjectDescriptions } from '../i18n/content'
 import { getCaseStudies } from '../i18n/case-studies';
 import { getGithubRepos } from '../lib/github';
 import { t } from '../i18n/ui';
+import { ogImagePath, profilePageJsonLd } from '../lib/seo';
 
 interface Props {
   locale: Locale;
@@ -23,6 +24,18 @@ interface Props {
 const { locale } = Astro.props;
 const ui = t(locale);
 const profile = getProfile(locale);
+const pageTitle = ui.meta.homeTitle ?? `${profile.name} | ${profile.title}`;
+const pageDescription = ui.meta.homeDescription ?? profile.tagline;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvamadhikary.vercel.app';
+const ogImage = ogImagePath('home', locale);
+const jsonLd = profilePageJsonLd({
+  siteUrl,
+  pageUrl: new URL(Astro.url.pathname, siteUrl).toString(),
+  locale,
+  title: pageTitle,
+  description: pageDescription,
+  image: new URL(ogImage, siteUrl).toString(),
+});
 
 const caseStudies = (await getCaseStudies(locale)).slice(0, 3);
 
@@ -120,9 +133,12 @@ const bootcampProjects = bootcampProjectNames.map((name) => {
 ---
 
 <BaseLayout
-  title={ui.meta.homeTitle ?? `${profile.name} | ${profile.title}`}
-  description={ui.meta.homeDescription ?? profile.tagline}
+  title={pageTitle}
+  description={pageDescription}
   locale={locale}
+  ogImage={ogImage}
+  ogImageAlt={ui.meta.ogAltHome(profile.name, profile.title, profile.location)}
+  jsonLd={jsonLd}
 >
   <StickyNav />
   <CommandPalette />

@@ -2,21 +2,30 @@
 interface Props {
   title: string;
   description: string;
+  /** Site-relative social card (1200x630 PNG, see src/lib/seo.ts). Defaults to the home card. */
   ogImage?: string;
+  /** Alt text of the social card, in the page's language. */
+  ogImageAlt?: string;
   canonicalURL?: string;
   ogType?: 'website' | 'article';
   /** Defaults to the locale of the URL (`/ja/...` is Japanese). */
   locale?: Locale;
+  /** schema.org JSON-LD for this page (ProfilePage on home, TechArticle on case studies). */
+  jsonLd?: Record<string, unknown>;
 }
 
 const {
   title,
   description,
-  ogImage = '/og-image.png',
   canonicalURL,
   ogType = 'website',
   locale = localeFromPath(Astro.url.pathname),
+  jsonLd,
 } = Astro.props;
+const ogImage = Astro.props.ogImage ?? ogImagePath('home', locale);
+const ogImageAlt =
+  Astro.props.ogImageAlt ??
+  t(locale).meta.ogAltHome(profile.name, getProfile(locale).title, getProfile(locale).location);
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvamadhikary.vercel.app';
 const pageUrl = canonicalURL || new URL(Astro.url.pathname, siteUrl).toString();
@@ -36,7 +45,6 @@ const otherLocales = locales.filter((l) => l !== locale);
 // explicit English visits keep working. Crawlers have no stored choice; `?lang=en`
 // always stays in English. Runs before first paint, so there is no flash.
 const localeRedirect = `(()=>{try{if(localStorage.getItem('locale')!=='ja')return;const n=performance.getEntriesByType('navigation')[0];if(n&&n.type!=='navigate')return;if(document.referrer&&new URL(document.referrer).origin===location.origin)return;if(/[?&]lang=en(&|$)/.test(location.search))return;location.replace('/ja'+location.pathname+location.search+location.hash)}catch(e){}})();`;
-const jobTitle = locale === 'en' ? profile.title : getProfile(locale).title;
 
 import '@fontsource-variable/inter';
 // Global Tailwind styles for every page (previously only imported by index.astro,
@@ -55,6 +63,8 @@ import {
   type Locale,
 } from '../i18n/config';
 import { getProfile } from '../i18n/content';
+import { t } from '../i18n/ui';
+import { OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, SITE_NAME, ogImagePath } from '../lib/seo';
 ---
 
 <!doctype html>
@@ -73,10 +83,15 @@ import { getProfile } from '../i18n/content';
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:url" content={pageUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={fullOgImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+    <meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content={ogLocale[locale]} />
     {otherLocales.map((l) => (
       <meta property="og:locale:alternate" content={ogLocale[l]} />
@@ -88,29 +103,19 @@ import { getProfile } from '../i18n/content';
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={fullOgImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
-    <!-- JSON-LD Person Schema -->
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: profile.name,
-        jobTitle,
-        address: {
-          '@type': 'PostalAddress',
-          addressLocality:
-            locale === defaultLocale ? profile.location : getProfile(locale).location,
-        },
-        url:
-          locale === defaultLocale
-            ? siteUrl
-            : new URL(localizePath('/', locale), siteUrl).toString(),
-        sameAs: [profile.links.github, profile.links.linkedin],
-      })}
-    />
-    <!-- Favicon -->
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+    <!-- Icons, web app manifest and browser UI colour (icons: npm run og:generate) -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- The manifest link is added after load (see below): a static link makes Chrome fetch
+         /site.webmanifest during load, which Lighthouse's network-dependency-tree-insight
+         counts as a critical chain (document -> manifest) and fails in CI. -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#030712" />
 
     <!-- Self-hosted Inter Variable (latin subset preloaded) -->
     <link rel="preload" href={interLatinWoff2} as="font" type="font/woff2" crossorigin />
@@ -132,6 +137,26 @@ import { getProfile } from '../i18n/content';
         document.documentElement.classList.toggle('dark', isDark);
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
       })();
+    </script>
+    <script is:inline>
+      // Attach the web app manifest once the page has loaded and the main thread is idle, so
+      // it never joins the critical request chain. Browsers pick up a manifest link added
+      // later (install prompt, home-screen name and icons work the same).
+      addEventListener(
+        'load',
+        () => {
+          const add = () => {
+            if (document.querySelector('link[rel="manifest"]')) return;
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = '/site.webmanifest';
+            document.head.append(link);
+          };
+          if ('requestIdleCallback' in window) requestIdleCallback(add, { timeout: 2000 });
+          else setTimeout(add, 200);
+        },
+        { once: true }
+      );
     </script>
     <slot name="head" />
   </head>

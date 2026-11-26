@@ -92,6 +92,18 @@ English is served at `/`; every page has a Japanese twin under `/ja/`, written f
 
 - Japanese résumé (職務経歴書): `public/resume-ja.pdf`, linked from the `/ja/` hero; `/` keeps `public/resume.pdf`. It is generated from `scripts/generate-ja-resume.mjs` (wording in the script; dates, titles and contact from `data/profile.json`). Regenerate with `npm run resume:ja` (or `npm run resume:ja -- 2026-11-26` to fix the 現在 date). Needs a static TrueType Japanese font: BIZ UDPGothic (Google Fonts, OFL) installed, or Yu Gothic / Meiryo on Windows
 
+### Social cards, icons and structured data
+
+- Social preview cards (1200x630 PNG, one per page and language) live in `public/og/` (`home-en.png`, `home-ja.png`, `<key>-en.png`, `<key>-ja.png`, where `<key>` is the first word of a case study's slug). The app icons (`icon-192.png`, `icon-512.png`, `apple-touch-icon.png`), `favicon.svg`/`favicon.ico` and the legacy `og-image.png` come from the same script. Regenerate after changing a case study title, description or tags, or the profile title, location or tagline:
+
+  ```bash
+  npm run og:generate
+  ```
+
+  It uses headless Chromium (`npx playwright install chromium` once). For crisp Japanese cards install BIZ UDPGothic (Google Fonts, OFL); it falls back to Noto Sans CJK JP, Hiragino or Yu Gothic.
+
+- JSON-LD (`ProfilePage` on the home pages, `TechArticle` on case studies) is built in `src/lib/seo.ts` from `data/profile.json`; the web app manifest is `public/site.webmanifest`.
+
 When you change English content, update the Japanese file too. If the English résumé PDF changes, update the script and regenerate the Japanese one.
 
 ## 🎨 Customization
@@ -192,8 +204,10 @@ Update `robots.txt` with your sitemap URL.
 ├── data/
 │   └── profile.json        # Personal data
 ├── public/
-│   ├── favicon.svg
-│   ├── og-image.png
+│   ├── favicon.svg / favicon.ico
+│   ├── icon-192.png, icon-512.png, apple-touch-icon.png
+│   ├── og/                 # Per-page social cards (npm run og:generate)
+│   ├── site.webmanifest
 │   └── robots.txt
 ├── src/
 │   ├── components/         # Reusable components
