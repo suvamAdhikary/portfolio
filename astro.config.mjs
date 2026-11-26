@@ -140,7 +140,19 @@ export default defineConfig({
     // Inline CSS to avoid a render-blocking stylesheet request
     inlineStylesheets: 'always',
   },
-  integrations: [mdx(), sitemap(), inlineGardenBootScript()],
+  // English at `/` (no prefix), Japanese mirrored under `/ja/`. Routing helpers live in
+  // src/i18n/config.ts; BaseLayout emits hreflang/og:locale for every page pair.
+  i18n: {
+    locales: ['en', 'ja'],
+    defaultLocale: 'en',
+    routing: { prefixDefaultLocale: false },
+  },
+  integrations: [
+    mdx(),
+    // Adds <xhtml:link rel="alternate" hreflang> entries for each en/ja page pair
+    sitemap({ i18n: { defaultLocale: 'en', locales: { en: 'en', ja: 'ja' } } }),
+    inlineGardenBootScript(),
+  ],
   vite: {
     plugins: [tailwindcss(), inlineVitePreloadHelper()],
     build: {

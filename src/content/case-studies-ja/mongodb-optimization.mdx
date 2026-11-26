@@ -1,0 +1,153 @@
+---
+title: '大規模環境での MongoDB パフォーマンス最適化'
+description: 'アクティブ学習者1万5千人以上のプラットフォームで、DB ラウンドトリップを90%削減し、クエリスループットを5倍に向上'
+publishDate: 2024-11-15
+tags: ['MongoDB', 'Performance', 'Node.js', 'TypeScript', 'Optimization']
+featured: true
+draft: false
+order: 3
+---
+
+## 概要
+
+upGrad Education にて、アクティブ学習者1万5千人以上が利用する学習プラットフォームの MongoDB 処理を最適化しました。`bulkWrite` の活用とアグリゲーションパイプラインの最適化により、データベースのラウンドトリップを90%削減し、クエリスループットを5倍に向上させました。
+
+**使用技術:** MongoDB, Node.js, TypeScript, アグリゲーションパイプライン
+
+**役割:** Software Engineer II ｜ **期間:** 2024年7月〜2026年2月
+
+## 課題
+
+プラットフォームには、パフォーマンス上の大きなボトルネックが二つありました。
+
+1. **課題の再アップロード:** 学習者が課題を再アップロードすると、ファイルやドキュメントの更新ごとに個別の MongoDB 書き込みが発生していました。アクティブ学習者が1万5千人を超える中、再提出が集中する時間帯にはデータベースのラウンドトリップが過剰になっていました。
+
+2. **アグリゲーションのメモリ負荷:** API が必要とするのはデータのごく一部なのに、アグリゲーションパイプラインは入れ子の大きなドキュメント（履歴全体や余分なメタデータ）を丸ごと読み込んでいました。パイプライン内のドキュメントあたりのメモリは約145KB に達し、負荷がかかるとクエリスループットが頭打ちになっていました。
+
+## 解決策1: bulkWrite による書き込みの最適化
+
+### 問題
+
+課題の再アップロードでは、ファイルやドキュメントの更新一件ごとに MongoDB の `updateOne` を実行していました。学習者が10ファイルを再アップロードすると、データベースへの書き込みが10回発生します。
+
+### アプローチ
+
+N 回の `updateOne` を呼び出す代わりに、再アップロードのリクエストごとにすべての更新を一回の `bulkWrite` にまとめました。
+
+```typescript
+// Before: Multiple individual updates
+for (const file of files) {
+  await collection.updateOne({ _id: file.id }, { $set: { status: 'uploaded', url: file.url } });
+}
+
+// After: Single bulk operation
+const bulkOps = files.map((file) => ({
+  updateOne: {
+    filter: { _id: file.id },
+    update: { $set: { status: 'uploaded', url: file.url } },
+  },
+}));
+
+await collection.bulkWrite(bulkOps);
+```
+
+### 結果
+
+- **データベースのラウンドトリップを約90%削減**（10回の個別書き込みが1回のバッチ処理に）
+- 再提出が集中する時間帯でも、プラットフォームは安定して稼働
+- ユーザーから見たプロダクトの挙動は変更なし
+
+## 解決策2: アグリゲーションパイプラインの最適化
+
+### 問題
+
+アグリゲーションパイプラインが、入れ子のドキュメント全体を複数のステージに持ち回っていました。
+
+```typescript
+// Problematic pipeline - loads everything
+db.collection.aggregate([
+  { $match: { courseId: courseId } },
+  {
+    $lookup: {
+      from: 'submissions',
+      localField: '_id',
+      foreignField: 'learnerId',
+      as: 'submissions',
+    },
+  },
+  {
+    $lookup: {
+      from: 'progress',
+      localField: '_id',
+      foreignField: 'learnerId',
+      as: 'progress',
+    },
+  },
+  // Later stages work with fat ~145KB documents
+]);
+```
+
+### アプローチ
+
+絞り込んだ `$project` ステージを使い、`$lookup` 以降のステージには必要なフィールドだけを渡すようにしました。
+
+```typescript
+// Optimized pipeline - project early
+db.collection.aggregate([
+  { $match: { courseId: courseId } },
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      email: 1,
+      // Only fields actually needed downstream
+    },
+  },
+  {
+    $lookup: {
+      from: 'submissions',
+      localField: '_id',
+      foreignField: 'learnerId',
+      as: 'submissions',
+      pipeline: [{ $project: { status: 1, submittedAt: 1 } }],
+    },
+  },
+  // Subsequent stages work with slim ~5KB documents
+]);
+```
+
+### 結果
+
+- パイプライン内の **ドキュメントあたりのメモリを約145KB から約5KB に削減**
+- **クエリスループットが約5倍に向上**：同じクエリが、負荷下でもはるかに速く完了
+- 同じクエリについて、単位時間あたりの完了件数を最適化の前後で比較して計測
+
+## 学んだこと
+
+### バルク操作
+
+- バッチ化によって、ネットワークのラウンドトリップは大幅に減らせる
+- 効果は操作をまとめたことによるもので、ordered／unordered の違いによるものではない
+- 改善の前後は、必ず実際のワークフローで計測する
+
+### アグリゲーションの最適化
+
+- 早い段階で、こまめに `$project` する。重いステージに不要なデータを持ち込まない
+- パイプライン内のドキュメントあたりのメモリは、スループットに直結する
+- `$lookup` のパイプライン内でも `$project` を使い、結合するデータを絞る
+
+### 計測について
+
+- ラウンドトリップ90%削減：桁が変わるレベルの変化（10回の書き込み → 1回のバッチ）
+- スループット5倍：最適化後の単位時間あたりのクエリ完了件数として計測
+- どちらの数値も、同じワークフローでプロファイリングし、前後を比較して得たもの
+
+## インパクト
+
+これらの最適化により、プラットフォームは次の状況に対応できるようになりました。
+
+- 再提出が集中する時間帯でも性能が劣化しない
+- 同じインフラのまま、より多くの同時クエリをさばける
+- アクティブ学習者1万5千人以上に対して、安定したパフォーマンスを提供
+
+bulkWrite とアグリゲーションの最適化を組み合わせたこの取り組みは、MongoDB の性能特性を操作レベルで理解すれば、アーキテクチャを変えなくても実運用で大きな改善が得られることを示しました。

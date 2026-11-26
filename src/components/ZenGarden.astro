@@ -5,6 +5,11 @@
 // the page has loaded, until the canvas has drawn (<template>, so it never competes with LCP).
 import { getImage } from 'astro:assets';
 import ZenGardenPicture from './ZenGardenPicture.astro';
+import { localeFromPath } from '../i18n/config';
+import { gardenText } from '../i18n/garden';
+
+const locale = localeFromPath(Astro.url.pathname);
+const copy = gardenText[locale];
 
 const images = import.meta.glob<{ default: ImageMetadata }>('../assets/garden/*.webp', {
   eager: true,
@@ -23,48 +28,52 @@ const variants = async (theme: 'light' | 'dark') => {
 };
 const [light, dark] = await Promise.all([variants('light'), variants('dark')]);
 
-const canvasLabel =
-  'A top-down Japanese rock garden that changes with the seasons: raked sand, moss islands with stones, streams carrying floating lanterns, a koi pond with a red bridge, a stone lantern and a seasonal tree. Each stone stands for a real system: Payments and a GraphQL gateway send lanterns, standing for events, down the streams into the Kafka pond, then on to Consumers and into the MongoDB pond.';
+const canvasLabel = copy.canvasLabel;
 
-const seasons = [
-  { id: 'spring', kanji: '春', name: 'Spring' },
-  { id: 'summer', kanji: '夏', name: 'Summer' },
-  { id: 'autumn', kanji: '秋', name: 'Autumn' },
-  { id: 'winter', kanji: '冬', name: 'Winter' },
-];
+const seasons = (['spring', 'summer', 'autumn', 'winter'] as const).map((id, i) => ({
+  id,
+  kanji: '春夏秋冬'[i],
+  name: { spring: 'Spring', summer: 'Summer', autumn: 'Autumn', winter: 'Winter' }[id],
+}));
+// Japanese: the kanji is the label itself (no English name beside it).
+const kanjiOnly = copy.seasons !== null;
 ---
 
 <section
   id="garden"
   data-zen-garden
+  data-garden-text={copy.canvas ? JSON.stringify(copy.canvas) : undefined}
   aria-labelledby="garden-title"
   class="relative container mx-auto px-4 sm:px-6 lg:px-8 py-20"
 >
   <div class="inline-block mb-4">
     <span class="text-sm font-mono text-primary-600 dark:text-primary-400 tracking-wider uppercase">
-      Systems
+      {copy.eyebrow}
     </span>
     <span class="ml-2 text-xs font-mono text-gray-600 dark:text-gray-400" lang="ja">
-      流れ <span lang="en">· flow</span>
+      流れ {!kanjiOnly && <span lang="en">· flow</span>}
     </span>
   </div>
   <h2 id="garden-title" class="text-4xl md:text-5xl font-bold mb-4">
-    A quiet garden of busy systems
+    {copy.title}
   </h2>
-  <p class="text-xl text-gray-600 dark:text-gray-400 mb-6 max-w-3xl">
-    The backend I build is meant to feel like this: calm on the surface while events keep moving
-    underneath.
-  </p>
+  <p class="text-xl text-gray-600 dark:text-gray-400 mb-6 max-w-3xl">{copy.intro}</p>
 
-  <div class="zg-seasons" role="group" aria-label="Season">
-    {seasons.map((s) => (
-      <button type="button" data-garden-season={s.id} aria-pressed="false">
-        <span class="zg-kanji" lang="ja" aria-hidden="true">
-          {s.kanji}
-        </span>
-        <span class="zg-season-name">{s.name}</span>
-      </button>
-    ))}
+  <div class="zg-seasons" role="group" aria-label={copy.seasonGroup}>
+    {seasons.map((s) =>
+      kanjiOnly ? (
+        <button type="button" data-garden-season={s.id} aria-pressed="false">
+          <span class="zg-kanji zg-kanji-only">{s.kanji}</span>
+        </button>
+      ) : (
+        <button type="button" data-garden-season={s.id} aria-pressed="false">
+          <span class="zg-kanji" lang="ja" aria-hidden="true">
+            {s.kanji}
+          </span>
+          <span class="zg-season-name">{s.name}</span>
+        </button>
+      )
+    )}
   </div>
 
   <figure class="zg-garden m-0" data-garden-root>
@@ -82,12 +91,9 @@ const seasons = [
     <canvas role="img" aria-label={canvasLabel}></canvas>
   </figure>
   <div class="zg-caption">
-    <p class="text-sm text-gray-600 dark:text-gray-400">
-      Each stone is a kind of system I build. Events flow from producers through Kafka to consumers,
-      staying calm under load and recovering from failure.
-    </p>
+    <p class="text-sm text-gray-600 dark:text-gray-400">{copy.caption}</p>
     <span class="zg-hint text-gray-600 dark:text-gray-400" id="garden-hint">
-      Drag to rake the sand. Tap a stone to add load, hold it to break it.
+      {copy.hint}
     </span>
   </div>
   <p class="zg-status text-gray-700 dark:text-gray-300" id="garden-status" aria-live="polite"></p>
@@ -116,7 +122,9 @@ const seasons = [
     if (!section || !figure) return;
     try {
       const { mountGarden } = await import('../scripts/zen-garden');
-      mountGarden(figure, document.getElementById('garden-status'), 'garden-hint');
+      // Localised canvas strings (Japanese page only); English is built into the chunk.
+      const text = section.dataset.gardenText ? JSON.parse(section.dataset.gardenText) : undefined;
+      mountGarden(figure, document.getElementById('garden-status'), 'garden-hint', text);
       section.dataset.ready = 'true';
     } catch (err) {
       // Keep the static picture if Canvas 2D is unavailable or the chunk fails to load.
@@ -325,6 +333,10 @@ const seasons = [
   .zg-kanji {
     font-size: 0.95rem;
     line-height: 1;
+  }
+  .zg-kanji-only {
+    font-size: 1.05rem;
+    padding-inline: 0.35rem;
   }
   @media (max-width: 420px) {
     .zg-season-name {

@@ -81,6 +81,17 @@ order: 1
 
 Projects are automatically fetched from GitHub at build time. Set `GITHUB_TOKEN` environment variable for higher API rate limits (optional).
 
+### Japanese edition (`/ja/`)
+
+English is served at `/`; every page has a Japanese twin under `/ja/`, written for Japanese recruiters (not a literal translation).
+
+- Interface strings: `src/i18n/ui.ts` (English and Japanese side by side)
+- Japanese wording for the profile, builds and project blurbs: `data/i18n/ja.json` (facts and dates still come from `data/profile.json` and `data/builds.json`)
+- Japanese case studies: `src/content/case-studies-ja/` (same file names as the English ones; `order` sets the Japanese order)
+- Zen garden copy: `src/i18n/garden.ts`
+
+When you change English content, update the Japanese file too.
+
 ## 🎨 Customization
 
 ### Colors

@@ -1,4 +1,20 @@
 ---
+import { homePath, localeFromPath } from '../i18n/config';
+import { t } from '../i18n/ui';
+
+const locale = localeFromPath(Astro.url.pathname);
+const ui = t(locale);
+// Labels are localised; `keywords` keep English names searchable on the Japanese site too.
+const commands = [
+  { name: ui.nav.about, keywords: 'about', section: 'about', icon: '👤' },
+  { name: ui.nav.experience, keywords: 'experience', section: 'experience', icon: '💼' },
+  { name: ui.nav.caseStudies, keywords: 'case studies', section: 'case-studies', icon: '📚' },
+  { name: ui.nav.projects, keywords: 'projects', section: 'projects', icon: '🚀' },
+  { name: ui.nav.builds, keywords: 'builds', section: 'builds', icon: '\u{1F3AE}' },
+  { name: ui.nav.skills, keywords: 'skills', section: 'skills', icon: '⚡' },
+  { name: ui.nav.education, keywords: 'education', section: 'education', icon: '🎓' },
+  { name: ui.nav.contact, keywords: 'contact', section: 'contact', icon: '✉️' },
+];
 ---
 
 <div
@@ -6,7 +22,10 @@
   class="fixed inset-0 z-50 hidden items-start sm:items-center justify-center bg-black/50 backdrop-blur-sm p-3 pt-[max(1rem,env(safe-area-inset-top))] sm:p-4 overscroll-contain"
   role="dialog"
   aria-modal="true"
-  aria-label="Quick navigation"
+  aria-label={ui.palette.dialog}
+  data-home={homePath(locale)}
+  data-empty={ui.palette.empty}
+  data-commands={JSON.stringify(commands)}
 >
   <div class="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-scale-in">
     <div class="border-b border-gray-200 dark:border-gray-800 p-4">
@@ -22,17 +41,17 @@
         <input
           type="text"
           id="command-input"
-          placeholder="Jump to a section…"
+          placeholder={ui.palette.placeholder}
           autocomplete="off"
           enterkeyhint="go"
           class="flex-1 bg-transparent border-none outline-none text-base sm:text-lg min-h-11 placeholder:text-gray-400 dark:placeholder:text-gray-600"
-          aria-label="Search navigation"
+          aria-label={ui.palette.input}
         />
         <button
           type="button"
           id="command-close"
           class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-xs font-mono text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-primary-500"
-          aria-label="Esc, close search"
+          aria-label={ui.palette.close}
         >
           <span class="hidden sm:inline">ESC</span>
           <svg
@@ -58,7 +77,7 @@
       class="max-h-[min(24rem,calc(100dvh-8rem))] overflow-y-auto overscroll-contain p-2"
     >
       <div class="text-xs font-mono text-gray-500 dark:text-gray-400 px-3 py-2">
-        Quick Navigation
+        {ui.palette.heading}
       </div>
     </div>
   </div>
@@ -69,32 +88,29 @@
   const input = document.getElementById('command-input') as HTMLInputElement;
   const results = document.getElementById('command-results');
 
-  const commands = [
-    { name: 'About', section: 'about', icon: '👤' },
-    { name: 'Experience', section: 'experience', icon: '💼' },
-    { name: 'Case Studies', section: 'case-studies', icon: '📚' },
-    { name: 'Projects', section: 'projects', icon: '🚀' },
-    { name: 'Builds', section: 'builds', icon: '\u{1F3AE}' },
-    { name: 'Skills', section: 'skills', icon: '⚡' },
-    { name: 'Education', section: 'education', icon: '🎓' },
-    { name: 'Contact', section: 'contact', icon: '✉️' },
-  ];
+  type Command = { name: string; keywords: string; section: string; icon: string };
+  const commands: Command[] = JSON.parse(palette?.dataset.commands ?? '[]');
+  const emptyText = palette?.dataset.empty ?? 'No results found';
 
   let selectedIndex = 0;
   let lastFocus: HTMLElement | null = null;
-  // Section anchors live on the home page; elsewhere link back to it.
-  const hashPrefix = window.location.pathname === '/' ? '' : '/';
+  // Section anchors live on the locale's home page (`/` or `/ja/`); elsewhere link back to it.
+  const home = palette?.dataset.home ?? '/';
+  const withSlash = (p: string) => (p.endsWith('/') ? p : `${p}/`);
+  const hashPrefix = withSlash(window.location.pathname) === withSlash(home) ? '' : home;
 
   const renderResults = (filter: string = '') => {
     if (!results) return;
 
-    const filtered = commands.filter((cmd) =>
-      cmd.name.toLowerCase().includes(filter.toLowerCase())
+    const q = filter.toLowerCase();
+    const filtered = commands.filter(
+      (cmd) => cmd.name.toLowerCase().includes(q) || cmd.keywords.includes(q)
     );
 
     if (filtered.length === 0) {
       results.innerHTML =
-        '<div class="px-3 py-8 text-center text-gray-500 dark:text-gray-400">No results found</div>';
+        '<div class="px-3 py-8 text-center text-gray-500 dark:text-gray-400"></div>';
+      results.firstElementChild!.textContent = emptyText;
       return;
     }
 

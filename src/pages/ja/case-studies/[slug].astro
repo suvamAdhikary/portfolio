@@ -1,0 +1,29 @@
+---
+// Japanese editions of the case studies (/ja/case-studies/<slug>/). Same slugs as English;
+// prev/next follow the Japanese order (Kafka, GraphQL Federation, MongoDB).
+import CaseStudyPage from '../../../components/CaseStudyPage.astro';
+import { getCaseStudies, type CaseStudy } from '../../../i18n/case-studies';
+
+export async function getStaticPaths() {
+  const caseStudies = await getCaseStudies('ja');
+
+  return caseStudies.map((study, idx) => ({
+    params: { slug: study.id },
+    props: {
+      study,
+      prev: idx > 0 ? caseStudies[idx - 1] : undefined,
+      next: idx < caseStudies.length - 1 ? caseStudies[idx + 1] : undefined,
+    },
+  }));
+}
+
+interface Props {
+  study: CaseStudy;
+  prev?: CaseStudy;
+  next?: CaseStudy;
+}
+
+const { study, prev, next } = Astro.props;
+---
+
+<CaseStudyPage study={study} prev={prev} next={next} locale="ja" />

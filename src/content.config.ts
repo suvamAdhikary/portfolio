@@ -1,17 +1,26 @@
 import { z, defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+const caseStudySchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  publishDate: z.date(),
+  tags: z.array(z.string()),
+  featured: z.boolean().default(false),
+  draft: z.boolean().default(false),
+  order: z.number().optional(),
+});
+
 const caseStudyCollection = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/case-studies' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    publishDate: z.date(),
-    tags: z.array(z.string()),
-    featured: z.boolean().default(false),
-    draft: z.boolean().default(false),
-    order: z.number().optional(),
-  }),
+  schema: caseStudySchema,
+});
+
+// Japanese editions (served under /ja/case-studies/). Same file names (ids) as the English
+// collection so each article pairs with its English version; `order` is the Japanese order.
+const caseStudyJaCollection = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/case-studies-ja' }),
+  schema: caseStudySchema,
 });
 
 const writingCollection = defineCollection({
@@ -29,5 +38,6 @@ const writingCollection = defineCollection({
 
 export const collections = {
   'case-studies': caseStudyCollection,
+  'case-studies-ja': caseStudyJaCollection,
   writing: writingCollection,
 };

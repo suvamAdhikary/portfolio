@@ -1,0 +1,101 @@
+{
+  "_note": "Japanese overlay for data/profile.json, data/builds.json and the curated GitHub project descriptions. Only wording changes here; every fact, figure and date must match the English source. Keys are company names, build ids and repo names.",
+  "profile": {
+    "title": "バックエンドエンジニア",
+    "location": "インド・ベンガルール",
+    "tagline": "Node.js・TypeScript・Kafka・MongoDB で、本番運用の API、マイクロサービス、イベント駆動システムを構築しています。",
+    "experience": {
+      "Neutrinos": {
+        "location": "インド・ベンガルール",
+        "highlights": [
+          "エンタープライズ向け保険プラットフォームで、Node.js / TypeScript の API フロー15本以上を堅牢化（パラメータ化した MSSQL クエリ、構造化ログ、エラーハンドリングの標準化、JWT ミドルウェア、個人情報（PII）を出力しないログ）",
+          "認証、ユーザー、保険契約、自動車保険、保険金請求の各領域で API を開発・リファクタリング。社内業務向けの管理 CMS とレポート API も構築",
+          "AWS EC2 から kubectl apply で Kubernetes ワークロードをデプロイ。リリース時や本番障害の調査では、k9s でロールアウト、Pod の状態、ログを監視"
+        ]
+      },
+      "upGrad Education": {
+        "location": "インド・ハイデラバード",
+        "highlights": [
+          "MongoDB の bulkWrite で課題の再アップロード処理を再設計し、アクティブ学習者1万5千人以上のプラットフォームで DB ラウンドトリップを90%削減",
+          "アグリゲーションのプロジェクションとステージを最適化し、ドキュメントあたりのメモリを145KB から5KB に削減、クエリスループットを5倍に向上",
+          "21以上のマイクロサービスにまたがり1日10万件以上のイベントを処理する Kafka のプロデューサー／コンシューマーを運用。リトライとデッドレター処理で部分障害に対応",
+          "20以上のマイクロサービスを統合する GraphQL Federation ゲートウェイを構築し、Kibana と Grafana で可観測性を強化。本番障害を60%削減"
+        ]
+      },
+      "Educational Initiatives": {
+        "location": "インド・ベンガルール",
+        "highlights": [
+          "1万人以上の学習者を支える基礎リテラシー教育プログラムのバックエンド基盤を構築。MongoDB と Redis によるオフライン同期と競合解決を含む",
+          "API ゲートウェイとデータアクセス層を備えた6サービス構成のマイクロサービスバックエンドを設計・構築し、新機能を既存のレガシーシステムと連携",
+          "リトライ、バッチ処理、バックグラウンド処理を備えた再利用可能な TypeScript ライブラリと堅牢な REST API を構築し、開発工数を30%削減"
+        ]
+      },
+      "Lead School": {
+        "location": "リモート",
+        "highlights": [
+          "Genie（課外活動管理）、Epsilon（コンテンツレビュー）、Assessment（K-12 向けテスト問題の作成）など、学校向けプロダクトの REST API を Node.js・MongoDB・Redis で開発",
+          "Redis キャッシュと API の最適化により、週1万人以上が利用するバックエンドの応答時間を60%改善",
+          "Web とモバイルの両方に展開できる、再利用可能な API と React / WebView モジュールを構築"
+        ]
+      }
+    },
+    "skillCategories": {
+      "Backend & Languages": "バックエンド・言語",
+      "Frameworks & Tools": "フレームワーク・ツール",
+      "Data & Messaging": "データベース・メッセージング",
+      "DevOps & Cloud": "DevOps・クラウド",
+      "Observability": "可観測性（オブザーバビリティ）"
+    },
+    "skillNames": {
+      "REST APIs": "REST API",
+      "Structured Logging": "構造化ログ"
+    },
+    "education": {
+      "Masai School": {
+        "degree": "フルスタック Web 開発コース 修了",
+        "institution": "Masai School"
+      },
+      "Heritage Institute of Technology, Kolkata": {
+        "degree": "機械工学 学士（B.Tech）",
+        "institution": "Heritage Institute of Technology（インド・コルカタ）"
+      }
+    }
+  },
+  "builds": {
+    "lemonade-day": {
+      "description": "ベンガルールの街角でニンブー・パーニー（インド風レモネード）の屋台を営むゲーム。市場（マンディ）で仕入れ、レシピと価格を決め、天候や祭りの波を乗りこなしながらキャリアを築いていきます。無料で遊べるブラウザゲームです。",
+      "imageAlt": "手描きのベンガルールのニンブー・パーニー屋台が描かれた Lemonade Day のシーズン選択画面",
+      "stack": {
+        "No dependencies": "依存ライブラリなし",
+        "Node tests": "Node テスト",
+        "Headless Chrome tests": "ヘッドレス Chrome テスト"
+      }
+    },
+    "devarcade": {
+      "description": "モバイルファーストの小さなゲームで DSA とシステム設計を学べます。システム設計の経営ゲーム「Packet City」と、DSA のローグライク「Dungeon of Algorithms」を収録。",
+      "imageAlt": "Packet City と Dungeon of Algorithms が並ぶ DevArcade のスキルマップ",
+      "stack": {
+        "Offline-first": "オフラインファースト",
+        "Node tests": "Node テスト",
+        "Headless Chrome tests": "ヘッドレス Chrome テスト"
+      }
+    },
+    "framekar": {
+      "description": "リール動画の腕を上げるためのアプリ。ショート動画の撮影・編集スキルをゲーム感覚のミッションで学べるモバイルファーストの Web アプリで、各ミッションの最後にはそのまま投稿できるリール／ショート動画が完成します。",
+      "imageAlt": "Framekar のミッション画面：Beat Cut Reel、シーズン1",
+      "stack": {}
+    }
+  },
+  "projects": {
+    "workflow-engine-backend": "ワークフロー自動化プラットフォーム向けの本番品質の NestJS バックエンド。JWT 認証、API キー、ワークフローの CRUD、Webhook 実行、Redis キャッシュ、充実した API ドキュメントを備えています。",
+    "visucode": "🎓 図解レッスン、ステップごとのドライラン、組み込みのコードエディタで DSA を学べるインタラクティブな学習プラットフォーム。読むだけでなく、見て理解するアルゴリズム学習。",
+    "identity-reconciliation": "メールアドレスと電話番号をまたいで顧客の連絡先を名寄せする REST API（TypeScript・SQL）",
+    "logic-composer": "グループとルールを入れ子にして論理式を組み立てられる、React と TypeScript 製のビジュアル条件ビルダー。明快な状態モデリング、イミュータブルな更新、再帰的なレンダリング、正確さを重視しています。",
+    "workflow-engine-frontend": "ワークフロー自動化プラットフォームの React フロントエンド。Vite・TypeScript・Tailwind CSS で構築し、ワークフロービルダー、実行履歴、リアルタイム監視を備えています。",
+    "Capdas-ECommerce": "MERN スタックで構築したサステナブルな衣料品 EC サイト（モバイル版）。デザイナーと協働した初めてのチーム開発。",
+    "dineout_clone": "絞り込み検索、日時選択、携帯電話番号の OTP ログイン、予約確認を備えたレストラン予約 Web アプリ。",
+    "Rhythm": "MERN スタックの音楽プラットフォーム。ユーザーは絞り込みや検索でアルバムを探せ、アーティストは作品を紹介できます。",
+    "MyGlamm-with-Backend": "商品詳細、カート、チェックアウトを備えたラグジュアリー美容品の EC サイト。",
+    "deliveroo-clone": "Sanity.io をバックエンドにしたフードデリバリーアプリ。マルチプラットフォーム対応。"
+  }
+}

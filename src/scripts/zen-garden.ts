@@ -193,6 +193,7 @@ interface Bush extends XY {
   r: number;
 }
 interface MountOpts {
+  text?: GardenText;
   season?: Season;
   dark?: boolean;
   reduced?: boolean;
@@ -331,6 +332,86 @@ const NODES: [NodeId, string, number][] = [
   ['cons', 'Consumers', 0],
   ['mongo', 'MongoDB', 0],
 ];
+
+/**
+ * Every visible or announced string in the garden. English is the default; other locales
+ * pass a full table to `mountGarden` (see src/i18n/garden.ts). `{name}` and `{n}` are
+ * filled in at run time.
+ */
+export interface GardenText {
+  nodes: Record<NodeId, string>;
+  short: Partial<Record<NodeId, string>>;
+  seasons: Record<Season, string>;
+  fail: Record<NodeId, [string, string]>;
+  shake: Record<Season, string>;
+  recovering: string;
+  burst: string;
+  spike: string;
+  feed: string;
+  lanternOn: string;
+  lanternOff: string;
+  seasonSet: string;
+  steady: string;
+  today: string;
+  stoneLabel: string;
+  stoneTitle: string;
+  pond: string;
+  tree: string;
+  lantern: string;
+  down: string;
+  unavailable: string;
+  buffer: string;
+  saved: string;
+}
+
+export const GARDEN_TEXT_EN: GardenText = {
+  nodes: Object.fromEntries(NODES.map(([id, name]) => [id, name])) as Record<NodeId, string>,
+  short: { gql: 'GraphQL', kafka: 'Kafka' },
+  seasons: { spring: 'Spring', summer: 'Summer', autumn: 'Autumn', winter: 'Winter' },
+  fail: {
+    pay: ['Payments paused. GraphQL keeps producing.', 'Payments back online.'],
+    gql: ['GraphQL gateway paused. Payments keeps producing.', 'GraphQL gateway back online.'],
+    kafka: [
+      'Kafka broker down. Producers hold their events upstream…',
+      'Kafka back. Producers flush their queue, nothing lost.',
+    ],
+    cons: [
+      'Consumers down. Kafka buffers events in its ring…',
+      'Consumers back. Draining the buffer, nothing lost.',
+    ],
+    mongo: [
+      'MongoDB unavailable. Consumers hold writes and retry…',
+      'MongoDB back. Writes catch up.',
+    ],
+  },
+  shake: {
+    winter: 'Snow slides off the bare branches.',
+    autumn: 'A flurry of momiji leaves.',
+    spring: 'Sakura petals drift down.',
+    summer: 'Leaves rustle in the summer air.',
+  },
+  recovering: '{name} is recovering. Give it a moment.',
+  burst: '{name}: +5 events. Kafka soaks up the burst.',
+  spike: 'Traffic spike toward {name}. Watch the buffer absorb it.',
+  feed: 'The koi come to see what you dropped.',
+  lanternOn: 'Lantern lit.',
+  lanternOff: 'Lantern out. The garden sleeps.',
+  seasonSet: '{name} in the garden.',
+  steady: 'All systems steady.',
+  today: 'Today’s season',
+  stoneLabel: '{name}: add load',
+  stoneTitle: '{name}. Enter adds load, F simulates a failure.',
+  pond: 'Koi pond: feed the koi',
+  tree: 'Tree: shake the branches',
+  lantern: 'Stone lantern: light or put out',
+  down: 'down',
+  unavailable: 'unavailable',
+  buffer: 'buffer {n}',
+  saved: '{n} saved',
+};
+
+const fill = (tpl: string, name: string | number) =>
+  tpl.replace('{name}', String(name)).replace('{n}', String(name));
 const STONES: Record<NodeId, StoneDef[]> = {
   pay: [
     [-0.12, -0.08, 0.44, 0.82, '#8f9296'],
@@ -461,6 +542,7 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
   const reduceInit: boolean =
     opts.reduced != null ? opts.reduced : matchMedia('(prefers-reduced-motion: reduce)').matches;
   const onStatus = opts.onStatus || (() => {});
+  const T = opts.text || GARDEN_TEXT_EN;
   let season: Season = opts.season || autoSeason(),
     dark = !!opts.dark;
   let reduce = reduceInit;
@@ -499,10 +581,10 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
   const nodes = {} as Record<NodeId, GNode>;
   const ring = (a: number) => a * 0;
   NODES.forEach(
-    ([id, name, prod]) =>
+    ([id, , prod]) =>
       (nodes[id] = {
         id,
-        name,
+        name: T.nodes[id],
         prod,
         x: 0,
         y: 0,
@@ -2501,14 +2583,14 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
         a: -k * 0.25,
         life: 1.6,
       });
-    if (n.down) say(n.name + ' is recovering. Give it a moment.');
+    if (n.down) say(fill(T.recovering, n.name));
     else if (n.prod) {
       n.pending += 5;
-      say(n.name + ': +5 events. Kafka soaks up the burst.');
+      say(fill(T.burst, n.name));
     } else {
       nodes.pay.pending += 3;
       nodes.gql.pending += 3;
-      say('Traffic spike toward ' + n.name + '. Watch the buffer absorb it.');
+      say(fill(T.spike, n.name));
     }
     if (reduce) {
       n.glint = 1;
@@ -2517,22 +2599,7 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
     }
   }
   let stillT: ReturnType<typeof setTimeout> | undefined;
-  const FAIL: Record<NodeId, string[]> = {
-    pay: ['Payments paused. GraphQL keeps producing.', 'Payments back online.'],
-    gql: ['GraphQL gateway paused. Payments keeps producing.', 'GraphQL gateway back online.'],
-    kafka: [
-      'Kafka broker down. Producers hold their events upstream…',
-      'Kafka back. Producers flush their queue, nothing lost.',
-    ],
-    cons: [
-      'Consumers down. Kafka buffers events in its ring…',
-      'Consumers back. Draining the buffer, nothing lost.',
-    ],
-    mongo: [
-      'MongoDB unavailable. Consumers hold writes and retry…',
-      'MongoDB back. Writes catch up.',
-    ],
-  };
+  const FAIL = T.fail;
   function failNode(n: GNode) {
     if (n.down) return;
     n.down = 3.8;
@@ -2592,7 +2659,7 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
       f.feed = 1;
       f.tt = 6;
     }
-    say('The koi come to see what you dropped.');
+    say(T.feed);
     if (reduce) render();
   }
   function shakeTree() {
@@ -2620,14 +2687,7 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
           ph: 0,
         });
       }
-    say(
-      {
-        winter: 'Snow slides off the bare branches.',
-        autumn: 'A flurry of momiji leaves.',
-        spring: 'Sakura petals drift down.',
-        summer: 'Leaves rustle in the summer air.',
-      }[season]
-    );
+    say(T.shake[season]);
   }
   function hitNode(x: number, y: number): GNode | null {
     for (const id of ids) {
@@ -2831,7 +2891,7 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
       if (inPond(p.x0, p.y0)) feed(p.x0, p.y0);
       else if (hitLant(p.x0, p.y0)) {
         st.lanternOn = !st.lanternOn;
-        say(st.lanternOn ? 'Lantern lit.' : 'Lantern out. The garden sleeps.');
+        say(st.lanternOn ? T.lanternOn : T.lanternOff);
       } else if (hitTree(p.x0, p.y0)) shakeTree();
       else {
         addRip(p.x0, p.y0, 0, S * 0.07, 1.2);
@@ -3236,7 +3296,7 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
 
   const lantern = () => {
     st.lanternOn = !st.lanternOn;
-    say(st.lanternOn ? 'Lantern lit.' : 'Lantern out. The garden sleeps.');
+    say(st.lanternOn ? T.lanternOn : T.lanternOff);
     if (reduce) render();
   };
   return {
@@ -3313,14 +3373,6 @@ function mount(root: HTMLElement, opts: MountOpts = {}): Engine {
 
 /* ---------------- site wrapper ---------------- */
 
-const SHORT: Partial<Record<NodeId, string>> = { gql: 'GraphQL', kafka: 'Kafka' };
-const SEASON_NAME: Record<Season, string> = {
-  spring: 'Spring',
-  summer: 'Summer',
-  autumn: 'Autumn',
-  winter: 'Winter',
-};
-
 export interface GardenHandle {
   destroy: () => void;
 }
@@ -3333,8 +3385,12 @@ export interface GardenHandle {
 export function mountGarden(
   root: HTMLElement,
   statusEl: HTMLElement | null,
-  hintId: string
+  hintId: string,
+  text: GardenText = GARDEN_TEXT_EN
 ): GardenHandle {
+  const T = text;
+  const SHORT = T.short;
+  const SEASON_NAME = T.seasons;
   const t0 = performance.now();
   const html = document.documentElement;
   const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -3368,14 +3424,15 @@ export function mountGarden(
 
   const stones = {} as Record<NodeId, HTMLButtonElement>;
   const labels = {} as Record<NodeId, { el: HTMLElement; name: HTMLElement; st: HTMLElement }>;
-  for (const [id, name] of NODES) {
+  for (const [id] of NODES) {
+    const name = T.nodes[id];
     stones[id] = button(
       'zg-hit zg-stone',
-      `${name}: add load`,
+      fill(T.stoneLabel, name),
       () => g?.tap(id),
       (b) => {
         b.setAttribute('aria-keyshortcuts', 'F');
-        b.title = `${name}. Enter adds load, F simulates a failure.`;
+        b.title = fill(T.stoneTitle, name);
         b.addEventListener('keydown', (e) => {
           if (e.key !== 'f' && e.key !== 'F') return;
           e.preventDefault();
@@ -3393,11 +3450,9 @@ export function mountGarden(
     overlay.appendChild(el);
     labels[id] = { el, name: nm, st };
   }
-  const pondBtn = button('zg-hit', 'Koi pond: feed the koi', () => g?.feed());
-  const treeBtn = button('zg-hit', 'Tree: shake the branches', () => g?.shake());
-  const lampBtn = button('zg-hit zg-hit-lamp', 'Stone lantern: light or put out', () =>
-    g?.toggleLantern()
-  );
+  const pondBtn = button('zg-hit', T.pond, () => g?.feed());
+  const treeBtn = button('zg-hit', T.tree, () => g?.shake());
+  const lampBtn = button('zg-hit zg-hit-lamp', T.lantern, () => g?.toggleLantern());
 
   const px = (n: number) => `${Math.round(n)}px`;
   const box = (el: HTMLElement, x: number, y: number, w: number, h: number) => {
@@ -3408,7 +3463,8 @@ export function mountGarden(
   };
   function place(L: Layout) {
     layout = L;
-    for (const [id, name] of NODES) {
+    for (const [id] of NODES) {
+      const name = T.nodes[id];
       const n = L.nodes[id];
       const r = id === 'kafka' ? n.outer : n.r;
       const d = Math.max(44, r * 2);
@@ -3437,15 +3493,16 @@ export function mountGarden(
       const n = g.nodes[id];
       const lb = labels[id];
       let s = '';
-      if (n.down) s = id === 'mongo' ? 'unavailable' : 'down';
-      else if (id === 'kafka' && orbiting > 0) s = `buffer ${orbiting}`;
-      else if (id === 'mongo' && g.st.stored) s = `${g.st.stored} saved`;
+      if (n.down) s = id === 'mongo' ? T.unavailable : T.down;
+      else if (id === 'kafka' && orbiting > 0) s = fill(T.buffer, orbiting);
+      else if (id === 'mongo' && g.st.stored) s = fill(T.saved, g.st.stored);
       lb.el.classList.toggle('zg-down', !!n.down);
       if (lb.st.textContent !== s) lb.st.textContent = s;
     }
   }
 
   g = mount(root, {
+    text: T,
     dark: html.classList.contains('dark'),
     reduced: mq.matches,
     onStatus: (t) => {
@@ -3468,7 +3525,7 @@ export function mountGarden(
       const s = b.dataset.gardenSeason as Season;
       b.setAttribute('aria-pressed', String(s === engine.season));
       b.classList.toggle('zg-now', s === today);
-      if (s === today) b.title = 'Today’s season';
+      if (s === today) b.title = T.today;
     }
   };
   const onSeason = (e: Event) => {
@@ -3476,7 +3533,7 @@ export function mountGarden(
     if (!SEASON_NAME[s]) return;
     engine.setSeason(s);
     markSeason();
-    say(`${SEASON_NAME[s]} in the garden.`);
+    say(fill(T.seasonSet, SEASON_NAME[s]));
   };
   for (const b of seasonBtns) b.addEventListener('click', onSeason);
   markSeason();
@@ -3488,7 +3545,7 @@ export function mountGarden(
   mq.addEventListener('change', onMotion);
 
   root.dataset.firstDrawMs = String(Math.round(performance.now() - t0));
-  say('All systems steady.');
+  say(T.steady);
 
   return {
     destroy() {

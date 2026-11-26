@@ -1,19 +1,29 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import LanguageSwitch from './LanguageSwitch.astro';
+import { homePath, localeFromPath } from '../i18n/config';
+import { t } from '../i18n/ui';
+
+const locale = localeFromPath(Astro.url.pathname);
+const ui = t(locale);
+const home = homePath(locale);
 
 // Single source of truth for header + mobile menu links.
 const links = [
-  { label: 'About', section: 'about' },
-  { label: 'Experience', section: 'experience' },
-  { label: 'Case Studies', section: 'case-studies' },
-  { label: 'Projects', section: 'projects' },
-  { label: 'Builds', section: 'builds' },
-  { label: 'Contact', section: 'contact' },
+  { label: ui.nav.about, section: 'about' },
+  { label: ui.nav.experience, section: 'experience' },
+  { label: ui.nav.caseStudies, section: 'case-studies' },
+  { label: ui.nav.projects, section: 'projects' },
+  { label: ui.nav.builds, section: 'builds' },
+  { label: ui.nav.contact, section: 'contact' },
 ];
 ---
 
 <header
   id="main-header"
+  data-home={home}
+  data-label-open={ui.nav.openMenu}
+  data-label-close={ui.nav.closeMenu}
   class="fixed top-0 z-40 w-full pt-[env(safe-area-inset-top)] transition-transform duration-300 motion-reduce:transition-none"
 >
   <div
@@ -23,15 +33,18 @@ const links = [
 
   <nav
     class="relative container mx-auto px-[max(1rem,env(safe-area-inset-left))] sm:px-6 lg:px-8"
-    aria-label="Primary"
+    aria-label={ui.nav.primary}
   >
     <div class="flex h-16 items-center justify-between gap-2">
       <a
-        href="/"
+        href={home}
         class="group relative inline-flex min-h-11 min-w-11 items-center text-xl font-bold transition-colors z-10 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
       >
-        <span class="sr-only">Suvam Adhikary, home</span>
-        <span aria-hidden="true" class="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+        <span class="sr-only">{ui.nav.homeSr}</span>
+        <span
+          aria-hidden="true"
+          class="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent"
+        >
           SA
         </span>
       </a>
@@ -39,7 +52,7 @@ const links = [
       <div class="flex items-center gap-1 sm:gap-2">
         {links.map((link) => (
           <a
-            href={`/#${link.section}`}
+            href={`${home}#${link.section}`}
             class="nav-link hidden lg:inline-flex min-h-11 items-center px-3 text-sm font-medium rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
             data-section={link.section}
           >
@@ -51,7 +64,7 @@ const links = [
           id="command-trigger"
           type="button"
           class="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 px-3 text-sm font-medium rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
-          aria-label="Search sections (Ctrl+K)"
+          aria-label={ui.nav.search}
           aria-haspopup="dialog"
           aria-controls="command-palette"
         >
@@ -74,13 +87,15 @@ const links = [
           </kbd>
         </button>
 
+        <LanguageSwitch />
+
         <ThemeToggle />
 
         <button
           id="mobile-menu-button"
           type="button"
           class="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
-          aria-label="Open menu"
+          aria-label={ui.nav.openMenu}
           aria-expanded="false"
           aria-controls="mobile-menu"
         >
@@ -116,7 +131,7 @@ const links = [
         {links.map((link) => (
           <li>
             <a
-              href={`/#${link.section}`}
+              href={`${home}#${link.section}`}
               class="nav-link mobile-nav-link flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
               data-section={link.section}
             >
@@ -135,7 +150,10 @@ const links = [
   const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
   const menuButton = document.getElementById('mobile-menu-button');
   const menu = document.getElementById('mobile-menu');
-  const isHome = window.location.pathname === '/';
+  // Home of the current locale (`/` or `/ja/`); section anchors live there.
+  const home = header?.dataset.home ?? '/';
+  const withSlash = (p: string) => (p.endsWith('/') ? p : `${p}/`);
+  const isHome = withSlash(window.location.pathname) === withSlash(home);
 
   // On the home page, use in-page hashes so the URL updates without a reload.
   if (isHome) {
@@ -163,7 +181,11 @@ const links = [
     menuOpen = open;
     menu?.classList.toggle('hidden', !open);
     menuButton?.setAttribute('aria-expanded', String(open));
-    menuButton?.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    menuButton?.setAttribute(
+      'aria-label',
+      (open ? header?.dataset.labelClose : header?.dataset.labelOpen) ??
+        (open ? 'Close menu' : 'Open menu')
+    );
     menuButton?.querySelector('[data-icon="open"]')?.classList.toggle('hidden', open);
     menuButton?.querySelector('[data-icon="close"]')?.classList.toggle('hidden', !open);
     if (open) {
