@@ -129,10 +129,20 @@ test.describe('SEO: manifest and icons', () => {
   test('head links the manifest, icons and theme colours', async ({ request }) => {
     for (const path of ['/', '/ja/']) {
       const html = await (await request.get(path)).text();
-      expect(html).toContain('<link rel="manifest" href="/site.webmanifest">');
+      // Added by script after load, never in the static HTML (keeps it off the critical chain)
+      expect(html).not.toMatch(/<link[^>]*rel="manifest"/);
       expect(html).toContain('<link rel="apple-touch-icon" href="/apple-touch-icon.png">');
       expect(html).toMatch(/<meta name="theme-color" media="\(prefers-color-scheme: light\)"/);
       expect(html).toMatch(/<meta name="theme-color" media="\(prefers-color-scheme: dark\)"/);
+    }
+  });
+
+  test('manifest link is attached after load', async ({ page }) => {
+    for (const path of ['/', '/ja/']) {
+      await page.goto(path);
+      const link = page.locator('head link[rel="manifest"]');
+      await expect(link).toHaveCount(1);
+      await expect(link).toHaveAttribute('href', '/site.webmanifest');
     }
   });
 

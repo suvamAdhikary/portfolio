@@ -111,7 +111,9 @@ import { OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, SITE_NAME, ogImagePath } from '../lib/
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <!-- The manifest link is added after load (see below): a static link makes Chrome fetch
+         /site.webmanifest during load, which Lighthouse's network-dependency-tree-insight
+         counts as a critical chain (document -> manifest) and fails in CI. -->
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#030712" />
 
@@ -135,6 +137,26 @@ import { OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, SITE_NAME, ogImagePath } from '../lib/
         document.documentElement.classList.toggle('dark', isDark);
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
       })();
+    </script>
+    <script is:inline>
+      // Attach the web app manifest once the page has loaded and the main thread is idle, so
+      // it never joins the critical request chain. Browsers pick up a manifest link added
+      // later (install prompt, home-screen name and icons work the same).
+      addEventListener(
+        'load',
+        () => {
+          const add = () => {
+            if (document.querySelector('link[rel="manifest"]')) return;
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = '/site.webmanifest';
+            document.head.append(link);
+          };
+          if ('requestIdleCallback' in window) requestIdleCallback(add, { timeout: 2000 });
+          else setTimeout(add, 200);
+        },
+        { once: true }
+      );
     </script>
     <slot name="head" />
   </head>
