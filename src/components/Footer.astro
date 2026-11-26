@@ -1,7 +1,20 @@
 ---
-import profile from '../../data/profile.json';
+import { homePath, localeFromPath } from '../i18n/config';
+import { getProfile } from '../i18n/content';
+import { t } from '../i18n/ui';
 
+const locale = localeFromPath(Astro.url.pathname);
+const ui = t(locale);
+const profile = getProfile(locale);
+const home = homePath(locale);
 const currentYear = new Date().getFullYear();
+const quickLinks = [
+  { label: ui.nav.about, section: 'about' },
+  { label: ui.nav.experience, section: 'experience' },
+  { label: ui.nav.caseStudies, section: 'case-studies' },
+  { label: ui.nav.projects, section: 'projects' },
+  { label: ui.nav.builds, section: 'builds' },
+];
 ---
 
 <footer class="border-t border-gray-200 dark:border-gray-800 mt-20">
@@ -10,58 +23,28 @@ const currentYear = new Date().getFullYear();
       <div>
         <h3 class="font-bold text-lg mb-4">{profile.name}</h3>
         <p class="text-gray-600 dark:text-gray-400 text-sm">
-          {profile.title} based in {profile.location}
+          {ui.footer.tagline(profile.title, profile.location)}
         </p>
       </div>
 
       <div>
-        <h4 class="font-semibold mb-4">Quick Links</h4>
+        <h4 class="font-semibold mb-4">{ui.footer.quickLinks}</h4>
         <ul class="text-sm">
-          <li>
-            <a
-              href="/#about"
-              class="inline-flex min-h-11 items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              About
-            </a>
-          </li>
-          <li>
-            <a
-              href="/#experience"
-              class="inline-flex min-h-11 items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              Experience
-            </a>
-          </li>
-          <li>
-            <a
-              href="/#case-studies"
-              class="inline-flex min-h-11 items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              Case Studies
-            </a>
-          </li>
-          <li>
-            <a
-              href="/#projects"
-              class="inline-flex min-h-11 items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              Projects
-            </a>
-          </li>
-          <li>
-            <a
-              href="/#builds"
-              class="inline-flex min-h-11 items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              Builds
-            </a>
-          </li>
+          {quickLinks.map((link) => (
+            <li>
+              <a
+                href={`${home}#${link.section}`}
+                class="inline-flex min-h-11 items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
 
       <div>
-        <h4 class="font-semibold mb-4">Connect</h4>
+        <h4 class="font-semibold mb-4">{ui.footer.connect}</h4>
         <ul class="text-sm">
           <li>
             <a
@@ -88,7 +71,7 @@ const currentYear = new Date().getFullYear();
               href={`mailto:${profile.email}`}
               class="inline-flex min-h-11 items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
-              Email
+              {ui.footer.email}
             </a>
           </li>
         </ul>
@@ -97,7 +80,7 @@ const currentYear = new Date().getFullYear();
 
     <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-gray-600 dark:text-gray-400">
       <p>
-        &copy; {currentYear} {profile.name}. Built with Astro and Tailwind CSS.
+        &copy; {currentYear} {profile.name}. {ui.footer.built}
       </p>
     </div>
   </div>
@@ -107,7 +90,7 @@ const currentYear = new Date().getFullYear();
   href="#top"
   id="back-to-top"
   class="fixed z-30 right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] inline-flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 dark:border-white/10 bg-white/90 dark:bg-gray-900/90 text-gray-700 dark:text-gray-200 shadow-lg backdrop-blur transition-opacity duration-300 opacity-0 pointer-events-none hover:text-primary-600 dark:hover:text-primary-400"
-  aria-label="Back to top"
+  aria-label={ui.footer.backToTop}
   tabindex="-1"
 >
   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

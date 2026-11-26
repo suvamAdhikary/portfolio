@@ -1,0 +1,59 @@
+---
+// EN / 日本語 switch for the header. Links to the same page in the other locale (every page
+// exists in both). Choosing a language stores it in localStorage ('locale'); BaseLayout uses
+// that to send returning visitors who chose 日本語 to /ja/ on a fresh visit (never on
+// back/forward, so history keeps working). The current section (#hash) is carried over.
+import { localeFromPath, localeLabel, localeName, locales, switchLocalePath } from '../i18n/config';
+import { t } from '../i18n/ui';
+
+const path = Astro.url.pathname;
+const locale = localeFromPath(path);
+const ui = t(locale);
+---
+
+<div
+  class="lang-switch inline-flex items-center rounded-lg border border-gray-300 dark:border-gray-700 p-px"
+  role="group"
+  aria-label={ui.nav.language}
+>
+  {locales.map((l) =>
+    l === locale ? (
+      <span
+        lang={l}
+        aria-current="true"
+        title={localeName[l]}
+        class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2 text-sm font-semibold bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+      >
+        {localeLabel[l]}
+      </span>
+    ) : (
+      <a
+        href={switchLocalePath(path, l)}
+        hreflang={l}
+        lang={l}
+        data-lang-switch={l}
+        title={ui.nav.switchTitle[l]}
+        class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2 text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+      >
+        {localeLabel[l]}
+      </a>
+    )
+  )}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('a[data-lang-switch]').forEach((link) => {
+    link.addEventListener('click', () => {
+      try {
+        localStorage.setItem('locale', link.dataset.langSwitch ?? 'en');
+      } catch {
+        // Storage unavailable (private mode): the switch still works for this visit.
+      }
+      // Stay on the same home section: /#experience <-> /ja/#experience (section ids match
+      // in both locales; case-study heading ids are translated, so those are not carried).
+      if (window.location.hash && !window.location.pathname.includes('/case-studies/')) {
+        link.href = link.href.split('#')[0] + window.location.hash;
+      }
+    });
+  });
+</script>

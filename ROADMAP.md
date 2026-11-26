@@ -180,7 +180,7 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Playwright: `tests/e2e/zen-garden.spec.ts` (section order and crawlable text, lazy init after scrolling, theme toggle, reduced-motion still frame) across all 10 viewport/theme projects; full suite 290 passing
 - [x] Lighthouse on the local build (gzip static server): 100 / 100 / 100 / 100 mobile and desktop, CLS 0, before and after
 
-**Zen garden v2: seasonal + playful (2026-11-25, staged on `feat/zen-garden`; PR #8 with stage 1 is already merged to `main`, so this needs a new PR)**
+**Zen garden v2: seasonal + playful (2026-11-25, merged to `main` as PR #9 from `feat/zen-garden-v2`)**
 
 - [x] Replaced the stage 1 garden with the approved v2 prototype ("yah, better"), ported to typed TypeScript in `src/scripts/zen-garden.ts` (same `mountGarden(root, statusEl, hintId)` entry point, so `ZenGarden.astro` keeps its lazy IntersectionObserver + idle boot, inlined boot script, reserved `aspect-ratio` box and `<template>` fallback)
 - [x] Seasons: spring sakura, summer leaves and fireflies at night, autumn momiji, winter snow on white sand; defaults to today's season, with a 春夏秋冬 switcher above the garden (marks today's season)
@@ -192,6 +192,25 @@ This document tracks the evolution of Suvam Adhikary's portfolio website. **Upda
 - [x] Static WebP fallbacks regenerated from the new garden (light/dark, wide/tall; autumn)
 - [x] Playwright: `tests/e2e/zen-garden.spec.ts` updated for the new status texts, plus season switcher, keyboard pond/lantern and reduced-motion rake tests; full suite 310 passing
 - [ ] Pre-existing, not from the garden: LHCI's desktop `label-content-name-mismatch` assertion fails on the header's `#command-trigger` button (also fails on the base commit)
+
+
+**English + Japanese localisation (2026-11-26, in review on `feat/i18n-ja`)**
+
+Approved plan: a real Japanese edition for Japanese recruiters and hiring managers, not a word-for-word translation.
+
+- [x] Routes: English stays at `/` (no prefix); every page is mirrored under `/ja/` (`/ja/`, `/ja/case-studies/<slug>/`). Astro `i18n` config (`prefixDefaultLocale: false`); helpers in `src/i18n/config.ts`
+- [x] Shared pages: `src/components/HomePage.astro` and `src/components/CaseStudyPage.astro` render either locale; `src/pages/index.astro` and `src/pages/ja/index.astro` (and the two `[slug].astro` routes) are thin wrappers. English output is unchanged apart from the new switch
+- [x] Copy: interface strings in `src/i18n/ui.ts`; Japanese wording for profile, builds and project blurbs in `data/i18n/ja.json` (overlays `data/profile.json` and `data/builds.json`, so facts, figures and dates have one source); Japanese case studies in `src/content/case-studies-ja/` (same slugs, code blocks identical to English)
+- [x] Japanese conventions: です/ます prose, 職務経歴 / 学歴・修了課程 headings, dates as `2024年7月〜2026年2月` and `2026年4月〜現在`, `在籍中` badge, `4.5年以上`, 学歴 oldest first, `1万5千人以上` / `1日10万件以上`; résumé button says it is the English PDF (英文レジュメ). No claims added that the English site lacks (no Japanese level, visa or relocation statements)
+- [x] Case studies reordered for `/ja/`: Kafka (reliability, no lost events through partial failures), GraphQL Federation (architecture at scale, 60% fewer incidents), then MongoDB (performance). English keeps MongoDB, Kafka, GraphQL
+- [x] Zen garden on `/ja/`: heading, intro, caption, hint, canvas description, season switcher (春 夏 秋 冬 as the labels), stone/pond/tree/lantern button names and every `aria-live` status line in Japanese. The Japanese table ships as a data attribute on the section; the lazy garden chunk grew by about 0.2 KB gzipped
+- [x] Header switch (`EN | 日本語`) on desktop and mobile, 44px targets, goes to the same page in the other language and keeps the home section (`/#experience` ↔ `/ja/#experience`). Choosing a language stores it in `localStorage` (`locale`); a returning visitor who chose 日本語 is sent from an English URL to its `/ja/` twin only on a fresh entry (typed URL, bookmark, external link), never on back/forward or reload, never from another page of the site, and never with `?lang=en`. Crawlers and first-time visitors are never redirected
+- [x] SEO: `<html lang>`, self canonical, `hreflang` en / ja / x-default (absolute URLs) on every page pair, per-locale title, description, `og:locale` (`en_US` / `ja_JP`) and `og:locale:alternate`; `TechArticle.inLanguage`; sitemap lists all 8 URLs with `xhtml:link` alternates
+- [x] Japanese typography without a webfont download: system Japanese fonts after Inter (Hiragino, Yu Gothic, Meiryo, Noto Sans CJK), `line-break: strict`, phrase-aware wrapping for headings (`word-break: auto-phrase`), looser line height for body text, `palt` on headings
+- [x] Playwright: `tests/e2e/i18n.spec.ts` (hreflang/canonical/og on all 4 pairs, sitemap, links stay in `/ja/`, case-study order, Japanese dates, switch + persistence + back button, palette, footer, Japanese case study TOC and prev/next, builds live-only, Japanese garden, no horizontal overflow) across all 10 viewport/theme projects
+- [x] Lighthouse on the box (local preview, 3 runs each): `/` and `/ja/` desktop 100/100/100/100, mobile 100/100/100/100, CLS 0
+- [ ] Suvam to review the Japanese copy (ideally with a native reader) before merge; optional: katakana reading of the name, Japanese level, work-authorisation or relocation lines, only if he wants them stated
+- [ ] After deploy: submit the sitemap again in Search Console and check the `/ja/` pages are indexed with the right `hreflang`
 
 ---
 
@@ -385,10 +404,10 @@ Missing / proposed fixes:
 
 ## Maintenance Notes
 
-- Content updates should be made in `data/profile.json` and `src/content/case-studies/*.mdx`
+- Content updates should be made in `data/profile.json` and `src/content/case-studies/*.mdx`; mirror any wording change in `data/i18n/ja.json` and `src/content/case-studies-ja/*.mdx` (Japanese). Interface strings live in `src/i18n/ui.ts`
 - Major structural changes should be documented in this roadmap
 - Keep the "Done" section as historical record
 - Move completed items from "Next" to "Done" with completion date
 - Update project URLs section as deployment progresses
 
-**Last Updated:** 2026-11-19
+**Last Updated:** 2026-11-26

@@ -5,6 +5,8 @@ interface Props {
   ogImage?: string;
   canonicalURL?: string;
   ogType?: 'website' | 'article';
+  /** Defaults to the locale of the URL (`/ja/...` is Japanese). */
+  locale?: Locale;
 }
 
 const {
@@ -13,11 +15,28 @@ const {
   ogImage = '/og-image.png',
   canonicalURL,
   ogType = 'website',
+  locale = localeFromPath(Astro.url.pathname),
 } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suvamadhikary.vercel.app';
 const pageUrl = canonicalURL || new URL(Astro.url.pathname, siteUrl).toString();
 const fullOgImage = new URL(ogImage, siteUrl).toString();
+
+// Every page exists in both locales, so each page lists itself and its translation.
+const basePath = stripLocale(Astro.url.pathname);
+const alternates = locales.map((l) => ({
+  hreflang: htmlLang[l],
+  href: new URL(localizePath(basePath, l), siteUrl).toString(),
+}));
+const xDefault = new URL(localizePath(basePath, defaultLocale), siteUrl).toString();
+const otherLocales = locales.filter((l) => l !== locale);
+// Returning visitors who chose 日本語 in the header switcher get the Japanese page.
+// Only on a fresh entry (typed URL, bookmark, external link): never on back/forward or
+// reload, and never when coming from another page of this site, so the back button and
+// explicit English visits keep working. Crawlers have no stored choice; `?lang=en`
+// always stays in English. Runs before first paint, so there is no flash.
+const localeRedirect = `(()=>{try{if(localStorage.getItem('locale')!=='ja')return;const n=performance.getEntriesByType('navigation')[0];if(n&&n.type!=='navigate')return;if(document.referrer&&new URL(document.referrer).origin===location.origin)return;if(/[?&]lang=en(&|$)/.test(location.search))return;location.replace('/ja'+location.pathname+location.search+location.hash)}catch(e){}})();`;
+const jobTitle = locale === 'en' ? profile.title : getProfile(locale).title;
 
 import '@fontsource-variable/inter';
 // Global Tailwind styles for every page (previously only imported by index.astro,
@@ -25,10 +44,21 @@ import '@fontsource-variable/inter';
 import '../styles/global.css';
 import interLatinWoff2 from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import profile from '../../data/profile.json';
+import {
+  defaultLocale,
+  htmlLang,
+  localeFromPath,
+  localizePath,
+  locales,
+  ogLocale,
+  stripLocale,
+  type Locale,
+} from '../i18n/config';
+import { getProfile } from '../i18n/content';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={htmlLang[locale]}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -36,6 +66,10 @@ import profile from '../../data/profile.json';
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
+    {alternates.map((a) => (
+      <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={xDefault} />
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
@@ -43,6 +77,10 @@ import profile from '../../data/profile.json';
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={fullOgImage} />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    {otherLocales.map((l) => (
+      <meta property="og:locale:alternate" content={ogLocale[l]} />
+    ))}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -58,12 +96,16 @@ import profile from '../../data/profile.json';
         '@context': 'https://schema.org',
         '@type': 'Person',
         name: profile.name,
-        jobTitle: profile.title,
+        jobTitle,
         address: {
           '@type': 'PostalAddress',
-          addressLocality: profile.location,
+          addressLocality:
+            locale === defaultLocale ? profile.location : getProfile(locale).location,
         },
-        url: siteUrl,
+        url:
+          locale === defaultLocale
+            ? siteUrl
+            : new URL(localizePath('/', locale), siteUrl).toString(),
         sameAs: [profile.links.github, profile.links.linkedin],
       })}
     />
@@ -73,6 +115,7 @@ import profile from '../../data/profile.json';
     <!-- Self-hosted Inter Variable (latin subset preloaded) -->
     <link rel="preload" href={interLatinWoff2} as="font" type="font/woff2" crossorigin />
 
+    {locale === defaultLocale && <script is:inline set:html={localeRedirect} />}
     <script is:inline>
       // Dark mode initialization (runs before first paint to avoid FOUC).
       // Explicit choice in localStorage wins; otherwise follow prefers-color-scheme.
