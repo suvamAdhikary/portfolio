@@ -136,6 +136,44 @@ test.describe('localisation: SEO and markup', () => {
       .evaluateAll((els) => els.map((e) => e.textContent?.trim()));
     expect(years).toEqual(['2014年〜2018年', '2021年']);
   });
+
+  test('résumé: /ja/ links the Japanese 職務経歴書, / keeps the English PDF', async ({
+    page,
+    request,
+  }) => {
+    const pdfLinks = () =>
+      page.locator('a[href$=".pdf"]').evaluateAll((els) =>
+        els.map((a) => ({
+          href: a.getAttribute('href'),
+          text: a.textContent?.trim(),
+          download: a.getAttribute('download'),
+          hreflang: a.getAttribute('hreflang'),
+        }))
+      );
+
+    await page.goto('/ja/');
+    expect(await pdfLinks()).toEqual([
+      {
+        href: '/resume-ja.pdf',
+        text: '職務経歴書（PDF）',
+        download: 'Suvam_Adhikary_Resume_JA.pdf',
+        hreflang: null,
+      },
+    ]);
+
+    await page.goto('/');
+    expect(await pdfLinks()).toEqual([
+      { href: '/resume.pdf', text: 'Download Resume', download: null, hreflang: null },
+    ]);
+
+    for (const path of ['/resume-ja.pdf', '/resume.pdf']) {
+      const res = await request.get(path);
+      expect(res.status(), path).toBe(200);
+      expect(res.headers()['content-type'], path).toContain('application/pdf');
+      const body = await res.body();
+      expect(body.subarray(0, 5).toString(), path).toBe('%PDF-');
+    }
+  });
 });
 
 test.describe('localisation: language switch', () => {
