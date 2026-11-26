@@ -83,8 +83,9 @@ const city = ui.hero.city ?? profile.location.split(',')[0];
         style="animation-delay: 0.4s"
       >
         <a
-          href={profile.links.resume}
-          hreflang={locale === 'en' ? undefined : 'en'}
+          href={ui.hero.resumeHref ?? profile.links.resume}
+          hreflang={ui.hero.resumeHref || locale === 'en' ? undefined : 'en'}
+          download={ui.hero.resumeFile ?? undefined}
           class="col-span-2 sm:col-auto group relative inline-flex justify-center px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-primary-500/50 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
         >
           <span class="relative z-10 flex items-center gap-2">

@@ -90,7 +90,9 @@ English is served at `/`; every page has a Japanese twin under `/ja/`, written f
 - Japanese case studies: `src/content/case-studies-ja/` (same file names as the English ones; `order` sets the Japanese order)
 - Zen garden copy: `src/i18n/garden.ts`
 
-When you change English content, update the Japanese file too.
+- Japanese résumé (職務経歴書): `public/resume-ja.pdf`, linked from the `/ja/` hero; `/` keeps `public/resume.pdf`. It is generated from `scripts/generate-ja-resume.mjs` (wording in the script; dates, titles and contact from `data/profile.json`). Regenerate with `npm run resume:ja` (or `npm run resume:ja -- 2026-11-26` to fix the 現在 date). Needs a static TrueType Japanese font: BIZ UDPGothic (Google Fonts, OFL) installed, or Yu Gothic / Meiryo on Windows
+
+When you change English content, update the Japanese file too. If the English résumé PDF changes, update the script and regenerate the Japanese one.
 
 ## 🎨 Customization
 

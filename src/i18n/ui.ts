@@ -43,7 +43,10 @@ const en = {
     city: null as string | null,
     years: '4.5+ years experience',
     resume: 'Download Resume',
+    /** Locale's own résumé PDF; null falls back to the English one (data/profile.json). */
     resumeHref: null as string | null,
+    /** File name offered when saving the locale's own résumé. */
+    resumeFile: null as string | null,
     scrollAria: 'Scroll to explore highlights',
     scroll: 'Scroll to explore',
   },
@@ -180,8 +183,9 @@ const ja: UI = {
       'Node.js・TypeScript・Kafka・MongoDB で、本番運用の API、マイクロサービス、イベント駆動システムを構築しています。',
     city: 'インド・ベンガルール',
     years: '実務経験 4.5年以上',
-    resume: '英文レジュメ（PDF）',
-    resumeHref: null,
+    resume: '職務経歴書（PDF）',
+    resumeHref: '/resume-ja.pdf',
+    resumeFile: 'Suvam_Adhikary_Resume_JA.pdf',
     scrollAria: 'スクロールして詳しく見る（実績ハイライト）',
     scroll: 'スクロールして詳しく見る',
   },
